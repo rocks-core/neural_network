@@ -1,4 +1,7 @@
+import numpy as np
+
 from neural_network import ActivationFunctions
+from neural_network.classes.Layer import HiddenLayer, OutputLayer
 from neural_network import MLClassifier
 from neural_network import datasets
 
@@ -6,6 +9,11 @@ from neural_network import datasets
 if __name__ == "__main__":
     number_inputs = 2
     layer_sizes = (2, 2, 1)
+    activation_functions = (
+        ActivationFunctions.Linear(),
+        ActivationFunctions.Linear(),
+        ActivationFunctions.Sigmoid()
+    )
     tr_df, vl_df, _ = datasets.circle()
     n_trials = 5
 
@@ -15,17 +23,41 @@ if __name__ == "__main__":
     vl_outputs = vl_df[["class"]].to_numpy()
 
     trials = []
+
+    layers = [
+        (  # 2 units hidden layer with linear act. fun
+            HiddenLayer(2, ActivationFunctions.Linear()),
+            np.random.rand(2, 3) * 0.5 - 0.2
+        ),
+        (  # 2 units hidden layer with linear act. fun
+            HiddenLayer(2, ActivationFunctions.Linear()),
+            np.random.rand(2, 3) * 0.5 - 0.2
+        ),
+        (  # 1 unit output layer with sigmoid function
+            OutputLayer(1, ActivationFunctions.Sigmoid()),
+            np.random.rand(1, 3) * 0.5 - 0.2
+        ),
+    ]
+    """
+    layers = {
+        0: {  # 2 units hidden layer with linear act. fun
+            "layer": HiddenLayer(2, ActivationFunctions.Linear()),
+            "weights": np.random.rand(2, 3) * 0.5 - 0.2
+        },
+        1: {  # 2 units hidden layer with linear act. fun
+            "layer": HiddenLayer(2, ActivationFunctions.Linear()),
+            "weights": np.random.rand(2, 3) * 0.5 - 0.2
+        },
+        2: {  # 1 unit output layer with sigmoid function
+            "layer": OutputLayer(1, ActivationFunctions.Sigmoid()),
+            "weights": np.random.rand(1, 3) * 0.5 - 0.2
+        }
+    }
+    """
     for _ in range(n_trials):
         classifier = MLClassifier(
-            number_inputs=2,
-            layer_sizes=layer_sizes,
-            activation_functions=(
-                ActivationFunctions.Linear(),
-                ActivationFunctions.Linear(),
-                ActivationFunctions.Sigmoid()
-            ),
-            #regularization_term=0.01,
-            batch_size=80,
+            layers=layers,
+            batch_size=1,
             learning_rate=0.001,
             n_epochs=200,
             verbose=True
@@ -47,4 +79,3 @@ if __name__ == "__main__":
     print(f"max: {max(trials)}")
     avg = lambda l: sum(l)/len(l) if len(l) != 0 else 0
     print(f"avg: {avg(trials)}")
-

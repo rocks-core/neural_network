@@ -1,4 +1,3 @@
-from neural_network.classes.Layer import HiddenLayer, OutputLayer
 from neural_network import utils
 import numpy as np
 
@@ -9,9 +8,7 @@ __all__ = ["MLClassifier"]
 class MLClassifier:
 	def __init__(
 			self,
-			number_inputs: int,
-			layer_sizes: tuple,
-			activation_functions: tuple,
+			layers: list,
 			alpha: float = 0.0001,
 			regularization_term: float = 0.0001,
 			batch_size: int = 100,
@@ -22,10 +19,14 @@ class MLClassifier:
 			momentum: float = 0.9,
 			nesterovs_momentum: bool = False
 	):
-		self.number_inputs = number_inputs
-		self.number_layers = len(layer_sizes)
-		self.layer_sizes = layer_sizes
-		self.activation_functions = activation_functions
+		self.layers = {
+			layer_index: {
+				"layer": layer,
+				"weights": layer_weights
+			}
+			for (layer_index, (layer, layer_weights)) in enumerate(layers)
+		}
+		self.number_layers = len(layers)
 		self.alpha = alpha
 		self.regularization_term = regularization_term
 		self.batch_size = batch_size
@@ -35,19 +36,6 @@ class MLClassifier:
 		self.verbose = verbose
 		self.momentum = momentum
 		self.nesterovs_momentum = nesterovs_momentum
-
-		# creating a structure to hold the layer related informations
-		self.layers = {
-			layer_index: {
-				"layer":
-					HiddenLayer(layer_units, layer_activation_fun)
-					if layer_index != (self.number_layers - 1) else OutputLayer(layer_units, layer_activation_fun),
-				"weights":
-					np.random.rand(layer_units, layer_sizes[layer_index - 1] + 1) * 0.5 - 0.2
-					if layer_index != 0 else np.random.rand(self.layer_sizes[0], (number_inputs + 1)) * 0.5 - 0.2
-			}
-			for (layer_index, (layer_units, layer_activation_fun)) in enumerate(zip(layer_sizes, activation_functions))
-		}
 
 	def __update_weights(self, deltas: list):
 		"""
@@ -121,7 +109,7 @@ class MLClassifier:
 				print(f"Iteration {iter_number+1}/{self.n_epochs}")
 			batched_patterns = [_ for _ in zip(inputs, expected_outputs)]  # group patterns in batches
 			for (batch_number, batch) in enumerate(utils.chunks(batched_patterns, self.batch_size)):  # iterate over batches
-				sum_of_deltas = [] # accumulator of deltas belonging to the batch
+				sum_of_deltas = []  # accumulator of deltas belonging to the batch
 				for (pattern, expected_output) in batch:  # iterate over pattern of a single batch
 					deltas = self.__fit_pattern(pattern, expected_output)
 
