@@ -1,2 +1,2 @@
-from . import ActivationFunctions
+from .Functions import ActivationFunctions
 from .MLClassifier import *

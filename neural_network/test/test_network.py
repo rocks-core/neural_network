@@ -1,6 +1,7 @@
 import numpy as np
 import unittest
-from neural_network.classes import MLClassifier, ActivationFunctions
+from neural_network.classes import MLClassifier
+from neural_network.classes.Functions import ActivationFunctions
 
 
 class NetworkTests(unittest.TestCase):
@@ -11,8 +12,8 @@ class NetworkTests(unittest.TestCase):
 
 		classifier = MLClassifier(number_inputs=number_inputs, layer_sizes=(layer_0_units, layer_1_units),
 								  activation_functions=(
-									  ActivationFunctions.Linear(),
-									  ActivationFunctions.Linear()
+                                      ActivationFunctions.Linear(),
+                                      ActivationFunctions.Linear()
 								  ), n_epochs=1)
 
 		inputs = np.array([[2, 3]])
@@ -26,7 +27,7 @@ class NetworkTests(unittest.TestCase):
 			[0.2, 0.2, 0.2]
 		])
 
-		self.assertEqual(classifier.predict(inputs)[0], 1.04)
+		self.assertEqual(classifier.predict(inputs)[0][0], 1.04)
 		classifier.fit(inputs, output)
 
 		self.assertEqual(
@@ -34,7 +35,7 @@ class NetworkTests(unittest.TestCase):
 			1
 		)
 		self.assertEqual(
-			classifier.layers[1]["layer"].error_signals[0],
+			classifier.layers[1]["layer"].error_signals[0][0],
 			-1.04
 		)
 

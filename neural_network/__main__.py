@@ -1,4 +1,4 @@
-from neural_network import ActivationFunctions
+from neural_network.classes.Functions import ActivationFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
 
@@ -36,8 +36,12 @@ if __name__ == "__main__":
 
         # validating result
         correct_predictions = 0
+
         for (input, expected_output) in zip(vl_inputs, vl_outputs):
-            real_output = classifier.predict(input)[0]
+            input = input.reshape(1, -1)  # inputs have to be row vector shape (1, n)
+            real_output = classifier.predict(input)[0, 0]  # output is a (1,1) matrix now
+            # in future the output will be a (m,n) matrix with n number of output units
+            # and m number of input patterns given to the net
             if round(real_output) == expected_output:
                 correct_predictions += 1
 

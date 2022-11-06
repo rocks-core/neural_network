@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from neural_network.classes.Layer import OutputLayer
-from neural_network.classes.ActivationFunctions import Linear
+from neural_network.classes.Functions.ActivationFunctions import Linear
 
 class BackpropagationTests(unittest.TestCase):
 	def test_output_layer(self):

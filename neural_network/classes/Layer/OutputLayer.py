@@ -1,7 +1,6 @@
 import numpy as np
-from neural_network.classes.ActivationFunctions import ActivationFunction
+from neural_network.classes.Functions.ActivationFunctions import ActivationFunction
 from neural_network.classes.Layer import Layer
-
 
 class OutputLayer(Layer):
 	def __init__(
@@ -27,7 +26,7 @@ class OutputLayer(Layer):
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
 		# adding bias to previous layer output
-		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1)
+		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=1)
 
 		# for each node compute difference between output and multiply for derivative of net
 		output_difference = np.subtract(expected_output, self.outputs)
@@ -35,12 +34,9 @@ class OutputLayer(Layer):
 		self.error_signals = np.multiply(
 			output_difference,
 			np.array(
-				[_ for _ in map(self.activation_function.derivative_f, self.nets)]
+				list(map(self.activation_function.derivative_f, self.nets))
 			)
 		)
 
 		# compute delta
-		return np.array([
-			error_signal * previous_layer_outputs
-			for error_signal in self.error_signals
-		])
+		return np.dot(self.error_signals.T, previous_layer_outputs)
