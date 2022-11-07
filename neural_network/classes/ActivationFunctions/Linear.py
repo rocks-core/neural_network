@@ -1,4 +1,5 @@
 from .ActivationFunction import ActivationFunction
+import numpy as np
 
 
 __all__ = ["Linear"]
@@ -7,6 +8,6 @@ __all__ = ["Linear"]
 class Linear(ActivationFunction):
     def __init__(self) -> None:
         super().__init__(
-            lambda x: x,
-            lambda _: 1
+            lambda v: v,
+            lambda v: np.ones(len(v))
         )

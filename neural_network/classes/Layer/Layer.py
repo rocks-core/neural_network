@@ -27,12 +27,12 @@ class Layer:
 		input_vector = np.insert(input_vector, 0, 1)  # adding bias term to input
 
 		# for each unit compute dot product
-		self.nets = [
+		self.nets = np.array([
 			np.dot(unit_weights, input_vector)
 			for unit_weights in layer_weights
-		]
+		])
 
 		# for each net result apply activation function
-		self.outputs = np.array([_ for _ in map(self.activation_function.f, self.nets)])
+		self.outputs = self.activation_function.f(self.nets)
 
 		return self.outputs  # note this function does not return the bias term!

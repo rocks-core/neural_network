@@ -32,12 +32,7 @@ class OutputLayer(Layer):
 		# for each node compute difference between output and multiply for derivative of net
 		output_difference = np.subtract(expected_output, self.outputs)
 
-		self.error_signals = np.multiply(
-			output_difference,
-			np.array(
-				[_ for _ in map(self.activation_function.derivative_f, self.nets)]
-			)
-		)
+		self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
 
 		# compute delta
 		return np.array([

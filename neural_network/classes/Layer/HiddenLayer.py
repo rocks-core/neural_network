@@ -40,7 +40,7 @@ class HiddenLayer(Layer):
 			for (outgoing_unit_weights, unit_net) in zip(next_layer_weights.T, self.nets)
 		]
 
-		derivative_applied_on_nets = np.array([_ for _ in map(self.activation_function.derivative_f, self.nets)])
+		derivative_applied_on_nets = self.activation_function.derivative_f(self.nets)
 		self.error_signals = np.multiply(self.error_signals, derivative_applied_on_nets)
 
 		return np.array(
