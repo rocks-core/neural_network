@@ -38,10 +38,9 @@ if __name__ == "__main__":
         correct_predictions = 0
 
         for (input, expected_output) in zip(vl_inputs, vl_outputs):
-            input = input.reshape(1, -1)  # inputs have to be row vector shape (1, n)
+            input = input.reshape(-1, 1)  # inputs have to be row vector shape (n, 1)
             real_output = classifier.predict(input)[0, 0]  # output is a (1,1) matrix now
-            # in future the output will be a (m,n) matrix with n number of output units
-            # and m number of input patterns given to the net
+
             if round(real_output) == expected_output:
                 correct_predictions += 1
 

@@ -31,17 +31,17 @@ class HiddenLayer(Layer):
 		:return: an array of arrays, containing the deltas to update the current layer weight; in particular, the
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
-		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=1)
+		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=0)
 		# self.nets = np.insert(self.nets, 0, 1)  # adding bias term
 
 		# layer_weights[i,j] is the weight that j-th neuron assign to the i-th input (the opposite of what seen at lesson)
 		# remove the weight corresponding to bias
-		next_layer_weights = next_layer_weights.T[1:, :]
+		next_layer_weights = next_layer_weights[:, 1:]
 
 		# for each next layer note do dot product between error signal and incoming weight from current unit
-		self.error_signals = np.dot(next_layer_weights, next_layer_error_signals)
+		self.error_signals = np.dot(next_layer_weights.T, next_layer_error_signals)
 
-		derivative_applied_on_nets = np.array(list(map(self.activation_function.derivative_f, self.nets)))
+		derivative_applied_on_nets = np.array(list(map(self.activation_function.derivative_f, self.nets))).reshape(-1, 1)
 		self.error_signals = np.multiply(self.error_signals, derivative_applied_on_nets)
 
-		return np.dot(self.error_signals, previous_layer_outputs)
+		return np.dot(self.error_signals, previous_layer_outputs.T)

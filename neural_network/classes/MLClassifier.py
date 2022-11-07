@@ -74,7 +74,7 @@ class MLClassifier:
         deltas = []
 
         if len(pattern.shape) == 1:
-            pattern = pattern.reshape(1, -1)  # transform input pattern to raw vector (shape (1, n))
+            pattern = pattern.reshape(-1, 1)  # transform input pattern to raw vector (shape (n, 1))
 
         # forwarding phase
         self.predict(pattern)

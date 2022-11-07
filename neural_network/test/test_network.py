@@ -16,7 +16,7 @@ class NetworkTests(unittest.TestCase):
                                       ActivationFunctions.Linear()
 								  ), n_epochs=1)
 
-		inputs = np.array([[2, 3]])
+		inputs = np.array([2, 3]).reshape(-1, 1)
 		output = np.array([[0]])
 
 		classifier.layers[0]["weights"] = np.array([
@@ -28,7 +28,7 @@ class NetworkTests(unittest.TestCase):
 		])
 
 		self.assertEqual(classifier.predict(inputs)[0][0], 1.04)
-		classifier.fit(inputs, output)
+		classifier.fit([inputs], [output])
 
 		self.assertEqual(
 			len(classifier.layers[1]["layer"].error_signals),
@@ -44,4 +44,4 @@ class NetworkTests(unittest.TestCase):
 			2
 		)
 		self.assertListEqual(list(classifier.layers[0]["weights"][0]), [0.3792, 0.3584, 0.3376])
-		self.assertListEqual(list(classifier.layers[0]["weights"][0]), [0.2792, 0.2584, 0.2376])
+		self.assertListEqual(list(classifier.layers[0]["weights"][1]), [0.2792, 0.2584, 0.2376])

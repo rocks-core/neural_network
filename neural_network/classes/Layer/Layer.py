@@ -20,17 +20,15 @@ class Layer:
         Given an input vector, performs the feedforwrd across the layer, automatically updating the
         layer nets and outputs field (a.k.a. the layer internal state)
 
-        :param input_vector: np array of numbers with shape (1, n)
+        :param input_vector: np array of numbers with shape (n, 1)
         :param layer_weights: matrices of weights,
         :return: the array containing the outputs of the units of this layer
         """
-        layer_weights = layer_weights.T
-        # layer_weights[i,j] is the weight that j-th neuron assign to the i-th input (the opposite of what seen at lesson)
 
-        input_vector = np.insert(input_vector, 0, 1, axis=1)  # adding bias term to input
+        input_vector = np.insert(input_vector, 0, 1, axis=0)  # adding bias term to input
 
         # compute input times matrix weights
-        self.nets = np.dot(input_vector, layer_weights)
+        self.nets = np.dot(layer_weights, input_vector)
 
         # for each net result apply activation function
         # can be done using np function instead of math function
