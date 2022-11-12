@@ -1,4 +1,5 @@
 from neural_network import ActivationFunctions
+from neural_network import LossFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer
@@ -10,7 +11,7 @@ if __name__ == "__main__":
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 	dataset_class_column = "class"
 	number_inputs = len(dataset_attribute_columns)
-	derivative_loss_function = lambda expected_outputs,  real_outputs: expected_outputs - real_outputs
+	loss_function = LossFunctions.MSE()
 
 	tr_df, vl_df, _ = neural_network.utils.split_samples(
 		df=datasets.read_monk1()[0],
@@ -35,7 +36,7 @@ if __name__ == "__main__":
 			np.random.rand(2, 3) * 0.5 - 0.2
 		),
 		(  # 1 unit output layer with sigmoid function
-			OutputLayer(1, ActivationFunctions.Sigmoid(), derivative_loss_function),
+			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function),
 			np.random.rand(1, 3) * 0.5 - 0.2
 		),
 	]
