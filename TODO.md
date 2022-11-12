@@ -1,7 +1,6 @@
 # Rete neurale
 * Spostare la logica di aggiornamento dei pesi da dentro il modello a un oggetto (e.g. opitmizer) che poi sarà passato al modello. 
   * Implementare il momentum
-* Passare all'output layer la funzione per calcolare la loss
 * Permettere di passare una lista di layer da usare anzichè creare i layer implicitamente nella rete neurale.
 * Trasformare gli array di array in matrici
 * Condizione di stop 

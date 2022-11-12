@@ -1,5 +1,6 @@
 import numpy as np
 from neural_network.classes.ActivationFunctions import ActivationFunction
+from neural_network.classes.LossFunctions import LossFunction
 from neural_network.classes.Layer import Layer
 
 
@@ -7,9 +8,16 @@ class OutputLayer(Layer):
 	def __init__(
 			self,
 			number_units: int,
-			activation_function: ActivationFunction
+			activation_function: ActivationFunction,
+			loss_function: LossFunction
 	) -> None:
+		"""
+		:param number_units: int, number of units of the current layer (corresponds to the number of outputs of the network)
+		:param activation_function: ActivationFunction, activaction function used by the units of the layer
+		:param loss_function
+		"""
 		super().__init__(number_units, activation_function)
+		self.loss_function = loss_function
 
 	def backpropagate(
 			self,
@@ -27,20 +35,11 @@ class OutputLayer(Layer):
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
 		# adding bias to previous layer output
-		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1)
+		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=0)
 
 		# for each node compute difference between output and multiply for derivative of net
-		output_difference = np.subtract(expected_output, self.outputs)
-
-		self.error_signals = np.multiply(
-			output_difference,
-			np.array(
-				[_ for _ in map(self.activation_function.derivative_f, self.nets)]
-			)
-		)
+		output_difference = self.loss_function.derivative_f(expected_output, self.outputs)
+		self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
 
 		# compute delta
-		return np.array([
-			error_signal * previous_layer_outputs
-			for error_signal in self.error_signals
-		])
+		return np.dot(previous_layer_outputs, self.error_signals.T)

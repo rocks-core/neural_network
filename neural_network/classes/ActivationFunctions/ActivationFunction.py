@@ -9,8 +9,3 @@ class ActivationFunction:
     ) -> None:
         self.f = f
         self.derivative_f = derivative_f
-
-
-
-
-
