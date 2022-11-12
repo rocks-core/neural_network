@@ -55,12 +55,15 @@ if __name__ == "__main__":
 		classifier.fit(tr_inputs, tr_outputs)
 		print("Done training")
 
-		# validating result
-		correct_predictions = 0
-		for (input, expected_output) in zip(vl_inputs, vl_outputs):
-			real_output = classifier.predict(input)[0]
-			if round(real_output) == expected_output:
-				correct_predictions += 1
+        # validating result
+        correct_predictions = 0
+
+        for (input, expected_output) in zip(vl_inputs, vl_outputs):
+            input = input.reshape(-1, 1)  # inputs have to be row vector shape (n, 1)
+            real_output = classifier.predict(input)[0, 0]  # output is a (1,1) matrix now
+
+            if round(real_output) == expected_output:
+                correct_predictions += 1
 
 		trials.append(100 * (correct_predictions / len(vl_df)))
 
@@ -68,3 +71,4 @@ if __name__ == "__main__":
 	print(f"max: {max(trials)}")
 	avg = lambda l: sum(l)/len(l) if len(l) != 0 else 0
 	print(f"avg: {avg(trials)}")
+
