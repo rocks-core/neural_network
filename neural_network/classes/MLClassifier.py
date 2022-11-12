@@ -9,10 +9,7 @@ __all__ = ["MLClassifier"]
 class MLClassifier:
 	def __init__(
 			self,
-			number_inputs: int,
-			layer_sizes: tuple,
-			activation_functions: tuple,
-			derivative_loss_function,
+			layers: list,
 			alpha: float = 0.0001,
 			regularization_term: float = 0.0001,
 			batch_size: int = 100,
@@ -23,10 +20,14 @@ class MLClassifier:
 			momentum: float = 0.9,
 			nesterovs_momentum: bool = False
 	):
-		self.number_inputs = number_inputs
-		self.number_layers = len(layer_sizes)
-		self.layer_sizes = layer_sizes
-		self.activation_functions = activation_functions
+		self.layers = {
+			layer_index: {
+				"layer": layer,
+				"weights": layer_weights
+			}
+			for (layer_index, (layer, layer_weights)) in enumerate(layers)
+		}
+		self.number_layers = len(layers)
 		self.alpha = alpha
 		self.regularization_term = regularization_term
 		self.batch_size = batch_size
@@ -36,20 +37,6 @@ class MLClassifier:
 		self.verbose = verbose
 		self.momentum = momentum
 		self.nesterovs_momentum = nesterovs_momentum
-
-		# creating a structure to hold the layer related informations
-		self.layers = {
-			layer_index: {
-				"layer":
-					HiddenLayer(layer_units, layer_activation_fun)
-					if layer_index != (self.number_layers - 1)
-					else OutputLayer(layer_units, layer_activation_fun, derivative_loss_function),
-				"weights":
-					np.random.rand(layer_units, layer_sizes[layer_index - 1] + 1) * 0.5 - 0.2
-					if layer_index != 0 else np.random.rand(self.layer_sizes[0], (number_inputs + 1)) * 0.5 - 0.2
-			}
-			for (layer_index, (layer_units, layer_activation_fun)) in enumerate(zip(layer_sizes, activation_functions))
-		}
 
 	def __update_weights(self, deltas: list):
 		"""

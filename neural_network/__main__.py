@@ -1,14 +1,15 @@
 from neural_network import ActivationFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
+from neural_network.classes.Layer import HiddenLayer, OutputLayer
 import neural_network.utils
+import numpy as np
 
 
 if __name__ == "__main__":
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 	dataset_class_column = "class"
 	number_inputs = len(dataset_attribute_columns)
-	layer_sizes = (2, 2, 1)
 	derivative_loss_function = lambda expected_outputs,  real_outputs: expected_outputs - real_outputs
 
 	tr_df, vl_df, _ = neural_network.utils.split_samples(
@@ -24,16 +25,25 @@ if __name__ == "__main__":
 	vl_inputs = vl_df[dataset_attribute_columns].to_numpy()
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
+    layers = [
+        (  # 2 units hidden layer with linear act. fun
+            HiddenLayer(2, ActivationFunctions.Linear()),
+            np.random.rand(2, 3) * 0.5 - 0.2
+        ),
+        (  # 2 units hidden layer with linear act. fun
+            HiddenLayer(2, ActivationFunctions.Linear()),
+            np.random.rand(2, 3) * 0.5 - 0.2
+        ),
+        (  # 1 unit output layer with sigmoid function
+            OutputLayer(1, ActivationFunctions.Sigmoid()),
+            np.random.rand(1, 3) * 0.5 - 0.2
+        ),
+    ]
+
 	trials = []
 	for _ in range(n_trials):
 		classifier = MLClassifier(
-			number_inputs=number_inputs,
-			layer_sizes=layer_sizes,
-			activation_functions=(
-				ActivationFunctions.Linear(),
-				ActivationFunctions.Linear(),
-				ActivationFunctions.Sigmoid()
-			),
+            layers=layers,
 			derivative_loss_function=derivative_loss_function,
 			#regularization_term=0.01,
 			batch_size=10,
@@ -58,4 +68,3 @@ if __name__ == "__main__":
 	print(f"max: {max(trials)}")
 	avg = lambda l: sum(l)/len(l) if len(l) != 0 else 0
 	print(f"avg: {avg(trials)}")
-
