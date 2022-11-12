@@ -1,3 +1,4 @@
+from neural_network.classes.Layer import HiddenLayer, OutputLayer
 from neural_network import utils
 import numpy as np
 
@@ -62,12 +63,15 @@ class MLClassifier:
 		"""
 		deltas = []
 
+		if len(pattern.shape) == 1:
+			pattern = pattern.reshape(-1, 1)  # transform input pattern to raw vector (shape (n, 1))
+
 		# forwarding phase
 		self.predict(pattern)
 
 		# backpropagation phase
-		hidden_layers_indices = [_ for _ in range(self.number_layers-1)]
-		output_layer = self.layers[self.number_layers-1]
+		hidden_layers_indices = list(range(self.number_layers - 1))
+		output_layer = self.layers[self.number_layers - 1]
 
 		# output layer
 		output_layer_deltas = output_layer["layer"].backpropagate(
