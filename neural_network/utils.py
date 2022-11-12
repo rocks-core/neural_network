@@ -19,7 +19,7 @@ def split_samples(
 		tr_size: float = 0.5,
 		vl_size: float = 0.25,
 		ts_size: float = 0.25,
-		shuffle: bool = True
+		shuffle: bool = False
 ) -> tuple:
 	"""
 	Splits a dataframe in training, validation and test set

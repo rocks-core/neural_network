@@ -1,4 +1,3 @@
-from neural_network.classes.Layer import HiddenLayer, OutputLayer
 from neural_network import utils
 import numpy as np
 
