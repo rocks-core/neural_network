@@ -1,7 +1,6 @@
 import numpy as np
 import unittest
-from neural_network.classes import MLClassifier
-from neural_network.classes.Functions import ActivationFunctions
+from neural_network.classes import MLClassifier, ActivationFunctions
 
 
 class NetworkTests(unittest.TestCase):
@@ -12,8 +11,8 @@ class NetworkTests(unittest.TestCase):
 
 		classifier = MLClassifier(number_inputs=number_inputs, layer_sizes=(layer_0_units, layer_1_units),
 								  activation_functions=(
-                                      ActivationFunctions.Linear(),
-                                      ActivationFunctions.Linear()
+									  ActivationFunctions.Linear(),
+									  ActivationFunctions.Linear()
 								  ), n_epochs=1)
 
 		inputs = np.array([2, 3]).reshape(-1, 1)
