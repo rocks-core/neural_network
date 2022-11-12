@@ -12,6 +12,7 @@ class MLClassifier:
 			number_inputs: int,
 			layer_sizes: tuple,
 			activation_functions: tuple,
+			derivative_loss_function,
 			alpha: float = 0.0001,
 			regularization_term: float = 0.0001,
 			batch_size: int = 100,
@@ -41,7 +42,8 @@ class MLClassifier:
 			layer_index: {
 				"layer":
 					HiddenLayer(layer_units, layer_activation_fun)
-					if layer_index != (self.number_layers - 1) else OutputLayer(layer_units, layer_activation_fun),
+					if layer_index != (self.number_layers - 1)
+					else OutputLayer(layer_units, layer_activation_fun, derivative_loss_function),
 				"weights":
 					np.random.rand(layer_units, layer_sizes[layer_index - 1] + 1) * 0.5 - 0.2
 					if layer_index != 0 else np.random.rand(self.layer_sizes[0], (number_inputs + 1)) * 0.5 - 0.2

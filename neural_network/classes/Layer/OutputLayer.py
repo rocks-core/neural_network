@@ -7,9 +7,19 @@ class OutputLayer(Layer):
 	def __init__(
 			self,
 			number_units: int,
-			activation_function: ActivationFunction
+			activation_function: ActivationFunction,
+			derivative_loss_function
 	) -> None:
+		"""
+		:param number_units: int, number of units of the current layer (corresponds to the number of outputs of the network)
+		:param activation_function: ActivationFunction, activaction function used by the units of the layer
+		:param derivative_loss_function: function, it's the derivative of the loss function of the network.
+			This function takes as arguments the vector of expected outputs (type np.array) and the vector of the network
+			outputs (type np.array); it returns a vector (type np.array) where the i-th element is equal to the
+			computation of the result function for the i-th output.
+		"""
 		super().__init__(number_units, activation_function)
+		self.derivative_loss_function = derivative_loss_function
 
 	def backpropagate(
 			self,
@@ -30,7 +40,7 @@ class OutputLayer(Layer):
 		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1)
 
 		# for each node compute difference between output and multiply for derivative of net
-		output_difference = np.subtract(expected_output, self.outputs)
+		output_difference = self.derivative_loss_function(expected_output, self.outputs)
 
 		self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
 
