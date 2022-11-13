@@ -27,23 +27,15 @@ if __name__ == "__main__":
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-		(  # 2 units hidden layer with linear act. fun
 			HiddenLayer(2, ActivationFunctions.Linear()),
-			np.random.rand(2, number_inputs+1) * 0.5 - 0.2
-		),
-		(  # 2 units hidden layer with linear act. fun
 			HiddenLayer(2, ActivationFunctions.Linear()),
-			np.random.rand(2, 3) * 0.5 - 0.2
-		),
-		(  # 1 unit output layer with sigmoid function
-			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function),
-			np.random.rand(1, 3) * 0.5 - 0.2
-		),
+			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function)
 	]
 
 	trials = []
 	for _ in range(n_trials):
 		classifier = MLClassifier(
+			input_shape=tr_inputs.shape[-1],
 			layers=layers,
 			#regularization_term=0.01,
 			batch_size=100,

@@ -22,7 +22,6 @@ class OutputLayer(Layer):
 	def backpropagate(
 			self,
 			expected_output: np.array,
-			previous_layer_outputs: np.array
 	) -> np.array:
 		"""
 		Backpropagates the error signals from the next layer, generating the error signals of the current
@@ -35,11 +34,11 @@ class OutputLayer(Layer):
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
 		# adding bias to previous layer output
-		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=0)
+		previous_layer_outputs = np.insert(self.previous_layer.outputs, 0, 1, axis=0)
 
 		# for each node compute difference between output and multiply for derivative of net
 		output_difference = self.loss_function.derivative_f(expected_output, self.outputs)
 		self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
 
 		# compute delta
-		return np.dot(previous_layer_outputs, self.error_signals.T)
+		return np.dot(self.error_signals, previous_layer_outputs.T)
