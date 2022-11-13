@@ -10,8 +10,8 @@ class ReLU(ActivationFunction):
 	def __init__(self) -> None:
 		super().__init__(
 			lambda v: np.maximum(
-				np.zeros(len(v)),
+				np.zeros(shape=v.shape),
 				v
 			),
-			lambda v: np.where(v < 0, np.zeros(len(v)), np.ones(len(v)))
+			lambda v: np.where(v < 0, np.zeros(shape=v.shape), np.ones(shape=v.shape))
 		)

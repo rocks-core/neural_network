@@ -43,6 +43,6 @@ class Layer:
 		self.nets = np.dot(self.weights, input_vector)
 
 		# for each net result apply activation function
-		self.outputs = np.array(list(map(self.activation_function.f, self.nets)))
+		self.outputs = self.activation_function.f(self.nets)
 
 		return self.outputs  # note this function does not return the bias term!

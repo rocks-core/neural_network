@@ -9,5 +9,5 @@ class Linear(ActivationFunction):
     def __init__(self) -> None:
         super().__init__(
             lambda v: v,
-            lambda v: np.ones(len(v))
+            lambda v: np.ones(shape=v.shape)
         )

@@ -8,42 +8,26 @@ __all__ = ["MLClassifier"]
 class MLClassifier:
     def __init__(
             self,
-            input_shape: tuple,
             layers: list,
-            alpha: float = 0.0001,
-            regularization_term: float = 0.0001,
+            optimizer,
             batch_size: int = 100,
             learning_rate: float = 0.1,
             n_epochs: int = 100,
             shuffle: bool = False,
             verbose: bool = False,
-            momentum: float = 0.9,
-            nesterovs_momentum: bool = False
     ):
-        self.layers = [InputLayer(input_shape)]
-        for layer in layers:
+        layers[0].build()
+        self.layers = [layers[0]]
+        for layer in layers[1:]:
             layer.build(self.layers[-1])
             self.layers.append(layer)
         self.number_layers = len(layers)
-        self.alpha = alpha
-        self.regularization_term = regularization_term
+        self.optimizer = optimizer
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.n_epochs = n_epochs
         self.shuffle = shuffle
         self.verbose = verbose
-        self.momentum = momentum
-        self.nesterovs_momentum = nesterovs_momentum
-
-    def __update_weights(self, deltas: list):
-        """
-		Update the weights of the network layers
-
-		:param deltas: list of arrays, i-th element corresponds to the array of deltas of the i-th layer
-		"""
-        # iterate over the layers
-        for layer, delta in zip(self.layers[1:], deltas):
-            layer.weights = layer.weights + self.learning_rate * delta - 2 * self.regularization_term * layer.weights
 
     def __fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
         """
@@ -67,7 +51,7 @@ class MLClassifier:
         output_layer_deltas = output_layer.backpropagate(expected_output)
         deltas.insert(0, output_layer_deltas)
 
-        for layer in reversed_layer[:-1]:
+        for layer in reversed_layer:
             hidden_layer_deltas = layer.backpropagate()
             deltas.insert(0, hidden_layer_deltas)
 
@@ -97,7 +81,7 @@ class MLClassifier:
                             sum_of_deltas[index] += deltas[index]
 
                 # at the end of batch update weights
-                self.__update_weights(sum_of_deltas)  # changed from delta to sum_of_delta
+                self.optimizer.apply(self.layers, sum_of_deltas)  # changed from delta to sum_of_delta
 
     def predict(self, input: np.array) -> np.array:
         """

@@ -37,7 +37,7 @@ class OutputLayer(Layer):
 		previous_layer_outputs = np.insert(self.previous_layer.outputs, 0, 1, axis=0)
 
 		# for each node compute difference between output and multiply for derivative of net
-		output_difference = self.loss_function.derivative_f(expected_output, self.outputs)
+		output_difference = -self.loss_function.derivative_f(expected_output, self.outputs)
 		self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
 
 		# compute delta

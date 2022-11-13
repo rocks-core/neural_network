@@ -2,7 +2,8 @@ from neural_network import ActivationFunctions
 from neural_network import LossFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
-from neural_network.classes.Layer import HiddenLayer, OutputLayer
+from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
+from neural_network.classes.Optimizers import SGD
 import neural_network.utils
 import numpy as np
 
@@ -27,7 +28,7 @@ if __name__ == "__main__":
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-			HiddenLayer(2, ActivationFunctions.Linear()),
+			InputLayer((tr_inputs.shape[-1], 1), 2, ActivationFunctions.Linear()),
 			HiddenLayer(2, ActivationFunctions.Linear()),
 			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function)
 	]
@@ -35,9 +36,8 @@ if __name__ == "__main__":
 	trials = []
 	for _ in range(n_trials):
 		classifier = MLClassifier(
-			input_shape=tr_inputs.shape[-1],
 			layers=layers,
-			#regularization_term=0.01,
+			optimizer=SGD(learning_rate=0.01, momentum=0.001, regularization=0.001),
 			batch_size=100,
 			learning_rate=0.001,
 			n_epochs=200,
@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
 		trials.append(100 * (correct_predictions / len(vl_df)))
 
+	print(trials)
 	print(f"min: {min(trials)}")
 	print(f"max: {max(trials)}")
 	avg = lambda l: sum(l)/len(l) if len(l) != 0 else 0

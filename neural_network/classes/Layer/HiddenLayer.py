@@ -37,7 +37,7 @@ class HiddenLayer(Layer):
 		# for each next layer note do dot product between error signal and incoming weight from current unit
 		self.error_signals = np.dot(next_layer_weights.T, self.next_layer.error_signals)
 
-		derivative_applied_on_nets = np.array(list(map(self.activation_function.derivative_f, self.nets))).reshape(-1, 1)
+		derivative_applied_on_nets = self.activation_function.derivative_f(self.nets)
 		self.error_signals = np.multiply(self.error_signals, derivative_applied_on_nets)
 
 		return np.dot(self.error_signals, previous_layer_outputs.T)
