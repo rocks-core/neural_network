@@ -1,5 +1,6 @@
 import numpy as np
 from neural_network.classes.ActivationFunctions import ActivationFunction
+from neural_network.classes.Initializer import Initializer
 
 
 class Layer:
@@ -7,9 +8,11 @@ class Layer:
 			self,
 			number_units: int,
 			activation_function: ActivationFunction,
+			initializer: Initializer,
 	) -> None:
 		self.number_units = number_units
 		self.activation_function = activation_function
+		self.initializer = initializer
 		# internal variables needed for backprop
 		self.outputs = None  # array of values
 		self.nets = None  # array of values
@@ -20,7 +23,7 @@ class Layer:
 		self.built = False
 
 	def build(self, previous_layer):
-		self.weights = np.random.rand(self.number_units, previous_layer.number_units + 1)
+		self.weights = self.initializer(shape=(self.number_units, previous_layer.number_units + 1))
 		previous_layer.next_layer = self
 		self.previous_layer = previous_layer
 		self.built = True

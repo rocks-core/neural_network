@@ -1,6 +1,7 @@
 import numpy as np
 from neural_network.classes.ActivationFunctions import ActivationFunction
 from neural_network.classes.LossFunctions import LossFunction
+from neural_network.classes.Initializer import Initializer
 from neural_network.classes.Layer import Layer
 
 
@@ -9,14 +10,15 @@ class OutputLayer(Layer):
 			self,
 			number_units: int,
 			activation_function: ActivationFunction,
-			loss_function: LossFunction
+			loss_function: LossFunction,
+			initializer: Initializer
 	) -> None:
 		"""
 		:param number_units: int, number of units of the current layer (corresponds to the number of outputs of the network)
 		:param activation_function: ActivationFunction, activaction function used by the units of the layer
 		:param loss_function
 		"""
-		super().__init__(number_units, activation_function)
+		super().__init__(number_units, activation_function, initializer)
 		self.loss_function = loss_function
 
 	def backpropagate(

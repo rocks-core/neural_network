@@ -7,9 +7,10 @@ class HiddenLayer(Layer):
 	def __init__(
 			self,
 			number_units: int,
-			activation_function: ActivationFunction
+			activation_function: ActivationFunction,
+			initializer
 	) -> None:
-		super().__init__(number_units, activation_function)
+		super().__init__(number_units, activation_function, initializer)
 
 	def backpropagate(
 			self

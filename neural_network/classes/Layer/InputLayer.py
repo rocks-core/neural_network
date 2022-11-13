@@ -1,18 +1,25 @@
 import numpy as np
 
 from neural_network.classes.ActivationFunctions import ActivationFunction
+from neural_network.classes.Initializer import Initializer
 from neural_network.classes.Layer import Layer
 
 
 class InputLayer(Layer):
 
-    def __init__(self, input_shape: tuple, number_units: int, activation_function: ActivationFunction):
-        super().__init__(number_units, activation_function)
+    def __init__(
+            self,
+            input_shape: tuple,
+            number_units: int,
+            activation_function: ActivationFunction,
+            initializer: Initializer
+    ) -> None:
+        super().__init__(number_units, activation_function, initializer)
         self.input_shape = input_shape
         self.inputs = None
 
-    def build(self):
-        self.weights = np.random.rand(self.number_units, self.input_shape[0] + 1)
+    def build(self) -> None:
+        self.weights = self.initializer(shape=(self.number_units, self.input_shape[0] + 1))
         self.built = True
 
     def match_shape(self, v):

@@ -4,6 +4,7 @@ from neural_network import MLClassifier
 from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD
+from neural_network.classes.Initializer import Uniform
 import neural_network.utils
 import numpy as np
 
@@ -28,9 +29,9 @@ if __name__ == "__main__":
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-			InputLayer((tr_inputs.shape[-1], 1), 2, ActivationFunctions.Linear()),
-			HiddenLayer(2, ActivationFunctions.Linear()),
-			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function)
+			InputLayer((tr_inputs.shape[-1], 1), 2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1)),
+			HiddenLayer(2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1)),
+			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function, initializer=Uniform(-0.1, 0.1))
 	]
 
 	trials = []
