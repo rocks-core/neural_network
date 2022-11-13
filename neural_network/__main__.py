@@ -23,26 +23,27 @@ if __name__ == "__main__":
 	)
 	n_trials = 5
 
-	tr_inputs = tr_df[dataset_attribute_columns].to_numpy()
+	tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
 	tr_outputs = tr_df[dataset_class_column].to_numpy()
-	vl_inputs = vl_df[dataset_attribute_columns].to_numpy()
+	vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-			InputLayer((tr_inputs.shape[-1], 1), 2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1)),
-			HiddenLayer(2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1)),
-			OutputLayer(1, ActivationFunctions.Sigmoid(), loss_function, initializer=Uniform(-0.1, 0.1))
+			InputLayer((tr_inputs.shape[-1], None), 5, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+			HiddenLayer(8, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+			OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
 	]
 
 	trials = []
 	for _ in range(n_trials):
 		classifier = MLClassifier(
 			layers=layers,
-			optimizer=SGD(learning_rate=0.01, momentum=0.001, regularization=0.001),
+			loss=loss_function,
+			optimizer=SGD(learning_rate=0.05, momentum=0, regularization=0.0001),
 			batch_size=100,
 			learning_rate=0.001,
-			n_epochs=200,
-			verbose=False
+			n_epochs=500,
+			verbose=True
 		)
 		# training model
 		classifier.fit(tr_inputs, tr_outputs)

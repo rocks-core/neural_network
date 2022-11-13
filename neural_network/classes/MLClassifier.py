@@ -1,4 +1,4 @@
-from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
+from neural_network.classes.LossFunctions import LossFunction
 from neural_network import utils
 import numpy as np
 
@@ -9,6 +9,7 @@ class MLClassifier:
     def __init__(
             self,
             layers: list,
+            loss: LossFunction,
             optimizer,
             batch_size: int = 100,
             learning_rate: float = 0.1,
@@ -16,11 +17,16 @@ class MLClassifier:
             shuffle: bool = False,
             verbose: bool = False,
     ):
+
         layers[0].build()
         self.layers = [layers[0]]
-        for layer in layers[1:]:
+        for layer in layers[1:-1]:
             layer.build(self.layers[-1])
             self.layers.append(layer)
+        layers[-1].build(self.layers[-1], loss)
+        self.layers.append(layers[-1])
+
+        self.loss = loss
         self.number_layers = len(layers)
         self.optimizer = optimizer
         self.batch_size = batch_size
@@ -57,15 +63,21 @@ class MLClassifier:
 
         return deltas
 
-    def fit(self, inputs: np.array, expected_outputs: np.array):
+    def fit(self, inputs: np.array, expected_outputs: np.array) -> tuple:
         """
 		:param inputs:
 		:param expected_outputs:
 		:return:
 		"""
+        train_loss = []
+        train_accuracy = []
         for iter_number in range(self.n_epochs):  # iterating for the specified epochs
+
+            train_loss.append(self.loss.f(expected_outputs.reshape(1, -1), self.predict(inputs.T)))
+            train_accuracy.append(self.evaluate(inputs.T, expected_outputs.reshape(1, -1)))  # predict all the inputs together
+
             if self.verbose:
-                print(f"Iteration {iter_number + 1}/{self.n_epochs}")
+                print(f"Iteration {iter_number + 1}/{self.n_epochs}\tLoss {train_loss[-1]}\tAccuracy {train_accuracy[-1]}")
             batched_patterns = [_ for _ in zip(inputs, expected_outputs)]  # group patterns in batches
             for (batch_number, batch) in enumerate(
                     utils.chunks(batched_patterns, self.batch_size)):  # iterate over batches
@@ -81,7 +93,8 @@ class MLClassifier:
                             sum_of_deltas[index] += deltas[index]
 
                 # at the end of batch update weights
-                self.optimizer.apply(self.layers, sum_of_deltas)  # changed from delta to sum_of_delta
+                self.optimizer.apply(self.layers, sum_of_deltas)  # changed from delta to sum_of_deltas
+        return train_loss, train_accuracy
 
     def predict(self, input: np.array) -> np.array:
         """
@@ -94,3 +107,7 @@ class MLClassifier:
             output = layer.feedforward(layer_input)
             layer_input = output
         return output
+
+    def evaluate(self, input: np.array, expected_output: np.array):
+        output = self.predict(input)
+        return np.mean(expected_output == np.rint(output))
