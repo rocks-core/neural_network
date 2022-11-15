@@ -13,8 +13,8 @@ def read_monk(index: int) -> tuple:
 	:param index: int, number of the monks dataset to use (e.g. monks-1.train, where 1 is the index)
 	:return: tuple of pandas DataFrames, the first element is the training set and the latter is the test set
 	"""
-	train_set_filepath = rf"/home/filippo/PycharmProjects/neural_network/neural_network/datasets/monks-{index}.train"
-	test_set_filepath = rf"/home/filippo/PycharmProjects/neural_network/neural_network/datasets/monks-1.train"
+	train_set_filepath = f"neural_network/datasets/monks-{index}.train"
+	test_set_filepath = f"neural_network/datasets/monks-{index}.train"
 
 	# reading csvs
 	train_set_df = pd.read_csv(
