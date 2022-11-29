@@ -7,6 +7,9 @@ from neural_network.classes.Optimizers import SGD
 from neural_network.classes.Initializer import Uniform
 import neural_network.utils
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from keras.layers import Dense
 
 if __name__ == "__main__":
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
@@ -28,23 +31,20 @@ if __name__ == "__main__":
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-		InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
-		HiddenLayer(8, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
+		InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+		HiddenLayer(8, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
 		OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
 	]
 
 	trials = []
 	for _ in range(n_trials):
-		classifier = MLClassifier(
-			layers=layers,
-			loss=loss_function,
-			optimizer=SGD(learning_rate=0.05, momentum=0., regularization=0.),
-			batch_size=100,
-			n_epochs=1000,
-			verbose=True
-		)
+		classifier = keras.Sequential(
+			[Dense(5, activation=keras.activations.sigmoid),
+			 Dense(8, activation=keras.activations.sigmoid),
+			 Dense(1, activation=keras.activations.sigmoid)])
 		# training model
-		classifier.fit(tr_inputs, tr_outputs, validation_data=(vl_inputs, vl_outputs))
+		classifier.compile(optimizer=keras.optimizers.SGD(0.001), loss="MSE", metrics=keras.metrics.binary_accuracy)
+		classifier.fit(tr_inputs, tr_outputs, epochs=1000, batch_size=1000)
 		print("Done training")
 
 		# validating result
@@ -57,7 +57,3 @@ if __name__ == "__main__":
 	print(f"max: {max(trials)}")
 	avg = lambda l: sum(l) / len(l) if len(l) != 0 else 0
 	print(f"avg: {avg(trials)}")
-
-	dict = {"unit_1": hp.Choice([4, 10, 16]), "learning_rate": hp.Float([0.0001, 0.1], 5), "unit_2": hp.Int([30, 50])}
-	for hp in tuner(dict):
-		yield model_builder(hp)
