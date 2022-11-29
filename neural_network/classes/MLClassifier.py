@@ -17,13 +17,13 @@ class MLClassifier:
 			verbose: bool = False,
 	):
 
-        layers[0].build()
-        self.layers = [layers[0]]
-        for layer in layers[1:-1]:
-            layer.build(self.layers[-1])
-            self.layers.append(layer)
-        layers[-1].build(self.layers[-1], loss)
-        self.layers.append(layers[-1])
+		layers[0].build()
+		self.layers = [layers[0]]
+		for layer in layers[1:-1]:
+			layer.build(self.layers[-1])
+			self.layers.append(layer)
+		layers[-1].build(self.layers[-1], loss)
+		self.layers.append(layers[-1])
 
 		self.loss = loss
 		self.number_layers = len(layers)
@@ -33,8 +33,8 @@ class MLClassifier:
 		self.shuffle = shuffle
 		self.verbose = verbose
 
-    def __fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
-        """
+	def __fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
+		"""
 		Fits the neural network using the single specified pattern
 
 		:param pattern: array of numbers, input features
@@ -42,24 +42,24 @@ class MLClassifier:
 		:return: list of array of arrays, a list containing for each layer the deltas of its weights; the list
 		is ordered, so the i-th element contains the deltas for the weights of the i-th layer
 		"""
-        deltas = []
+		deltas = []
 
 		if len(pattern.shape) == 1:
 			pattern = pattern.reshape(1, -1)  # transform input pattern to raw vector (shape (n, 1))
 
-        # forwarding phase
-        self.predict(pattern)
+		# forwarding phase
+		self.predict(pattern)
 
-        reversed_layer = list(reversed(self.layers))
-        output_layer = reversed_layer.pop(0)
-        output_layer_deltas = output_layer.backpropagate(expected_output)
-        deltas.insert(0, output_layer_deltas)
+		reversed_layer = list(reversed(self.layers))
+		output_layer = reversed_layer.pop(0)
+		output_layer_deltas = output_layer.backpropagate(expected_output)
+		deltas.insert(0, output_layer_deltas)
 
-        for layer in reversed_layer:
-            hidden_layer_deltas = layer.backpropagate()
-            deltas.insert(0, hidden_layer_deltas)
+		for layer in reversed_layer:
+			hidden_layer_deltas = layer.backpropagate()
+			deltas.insert(0, hidden_layer_deltas)
 
-        return deltas
+		return deltas
 
 	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: tuple = None) -> tuple:
 		"""
@@ -100,18 +100,18 @@ class MLClassifier:
 				self.optimizer.apply(self.layers, deltas)  # changed from delta to sum_of_deltas
 		return train_loss, train_accuracy
 
-    def predict(self, input: np.array) -> np.array:
-        """
+	def predict(self, input: np.array) -> np.array:
+		"""
 		Given an input vectors, feedforwards over all the layers
 		:param input:
 		:return: the network output
 		"""
-        layer_input = input
-        for layer in self.layers:
-            output = layer.feedforward(layer_input)
-            layer_input = output
-        return output
+		layer_input = input
+		for layer in self.layers:
+			output = layer.feedforward(layer_input)
+			layer_input = output
+		return output
 
-    def evaluate(self, input: np.array, expected_output: np.array):
-        output = self.predict(input)
-        return np.mean(expected_output == np.rint(output))
+	def evaluate(self, input: np.array, expected_output: np.array):
+		output = self.predict(input)
+		return np.mean(expected_output == np.rint(output))

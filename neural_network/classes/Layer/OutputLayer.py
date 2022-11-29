@@ -6,29 +6,29 @@ from neural_network.classes.Layer import Layer
 
 
 class OutputLayer(Layer):
-    def __init__(
-            self,
-            number_units: int,
-            activation_function: ActivationFunction,
-            initializer: Initializer
-    ) -> None:
-        """
+	def __init__(
+			self,
+			number_units: int,
+			activation_function: ActivationFunction,
+			initializer: Initializer
+	) -> None:
+		"""
 		:param number_units: int, number of units of the current layer (corresponds to the number of outputs of the network)
 		:param activation_function: ActivationFunction, activaction function used by the units of the layer
 		:param loss_function
 		"""
-        super().__init__(number_units, activation_function, initializer)
-        self.loss_function = None
+		super().__init__(number_units, activation_function, initializer)
+		self.loss_function = None
 
-    def build(self, previous_layer, loss_function: LossFunction):
-        self.loss_function = loss_function
-        super().build(previous_layer)
+	def build(self, previous_layer, loss_function: LossFunction):
+		self.loss_function = loss_function
+		super().build(previous_layer)
 
-    def backpropagate(
-            self,
-            expected_output: np.array,
-    ) -> np.array:
-        """
+	def backpropagate(
+			self,
+			expected_output: np.array,
+	) -> np.array:
+		"""
 		Backpropagates the error signals from the next layer, generating the error signals of the current
 		layer (and updating the internal state) and computing the deltas of the current layer incoming weights
 
