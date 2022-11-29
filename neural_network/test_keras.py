@@ -12,48 +12,48 @@ from tensorflow import keras
 from keras.layers import Dense
 
 if __name__ == "__main__":
-    dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
-    dataset_class_column = "class"
-    number_inputs = len(dataset_attribute_columns)
-    loss_function = LossFunctions.MSE()
+	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
+	dataset_class_column = "class"
+	number_inputs = len(dataset_attribute_columns)
+	loss_function = LossFunctions.MSE()
 
-    tr_df, vl_df, _ = neural_network.utils.split_samples(
-        df=datasets.read_monk1()[0],
-        tr_size=0.7,
-        vl_size=0.3,
-        ts_size=0.0
-    )
-    n_trials = 5
+	tr_df, vl_df, _ = neural_network.utils.split_samples(
+		df=datasets.read_monk1()[0],
+		tr_size=0.7,
+		vl_size=0.3,
+		ts_size=0.0
+	)
+	n_trials = 5
 
-    tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-    tr_outputs = tr_df[dataset_class_column].to_numpy()
-    vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-    vl_outputs = vl_df[dataset_class_column].to_numpy()
+	tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
+	tr_outputs = tr_df[dataset_class_column].to_numpy()
+	vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
+	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
-    layers = [
-        InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
-        HiddenLayer(8, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
-        OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
-    ]
+	layers = [
+		InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+		HiddenLayer(8, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+		OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
+	]
 
-    trials = []
-    for _ in range(n_trials):
-        classifier = keras.Sequential(
-            [Dense(5, activation=keras.activations.sigmoid),
-             Dense(8, activation=keras.activations.sigmoid),
-             Dense(1, activation=keras.activations.sigmoid)])
-        # training model
-        classifier.compile(optimizer=keras.optimizers.SGD(0.001), loss="MSE", metrics=keras.metrics.binary_accuracy)
-        classifier.fit(tr_inputs, tr_outputs, epochs=1000, batch_size=1000)
-        print("Done training")
+	trials = []
+	for _ in range(n_trials):
+		classifier = keras.Sequential(
+			[Dense(5, activation=keras.activations.sigmoid),
+			 Dense(8, activation=keras.activations.sigmoid),
+			 Dense(1, activation=keras.activations.sigmoid)])
+		# training model
+		classifier.compile(optimizer=keras.optimizers.SGD(0.001), loss="MSE", metrics=keras.metrics.binary_accuracy)
+		classifier.fit(tr_inputs, tr_outputs, epochs=1000, batch_size=1000)
+		print("Done training")
 
-        # validating result
-        correct_predictions = 0
+		# validating result
+		correct_predictions = 0
 
-        trials.append(100 * classifier.evaluate(vl_inputs, vl_outputs))
+		trials.append(100 * classifier.evaluate(vl_inputs, vl_outputs))
 
-    print(trials)
-    print(f"min: {min(trials)}")
-    print(f"max: {max(trials)}")
-    avg = lambda l: sum(l) / len(l) if len(l) != 0 else 0
-    print(f"avg: {avg(trials)}")
+	print(trials)
+	print(f"min: {min(trials)}")
+	print(f"max: {max(trials)}")
+	avg = lambda l: sum(l) / len(l) if len(l) != 0 else 0
+	print(f"avg: {avg(trials)}")

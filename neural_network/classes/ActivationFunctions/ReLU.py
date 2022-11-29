@@ -2,7 +2,6 @@ import numpy as np
 
 from .ActivationFunction import ActivationFunction
 
-
 __all__ = ["ReLU"]
 
 

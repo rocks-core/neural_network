@@ -1,7 +1,6 @@
 from .ActivationFunction import ActivationFunction
 import numpy as np
 
-
 __all__ = ["Sigmoid"]
 
 

@@ -2,7 +2,6 @@ import numpy as np
 
 from .LossFunction import LossFunction
 
-
 __all__ = ["MSE"]
 
 
