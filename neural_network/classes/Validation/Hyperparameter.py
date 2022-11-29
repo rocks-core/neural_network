@@ -2,12 +2,23 @@ import random
 
 class Hyperparameter():
 
+    """
+    This class allows you to generate an itarable based on rules that you decide, the elements are generated without repetitions
+
+    """
+
     def __init__(
         self,
         generator_logic, # can be "random_choice_form_list","random_choice_form_range", "all_from_list"
         generator_space,
         random_elements_to_generate = -1
         ):
+
+        """
+        :param generator_logic: string that could be: {random_choice_from_range, random_choice_from_list, all_from_list}
+        :param generator_space: a tuple or a list, based on the generator logic, tuple (with two values) are used for indicate a range 
+        :param random_element_to_generate: number or random element to generate from a range o to pick from a list 
+        """
         
         # control of validity
 
