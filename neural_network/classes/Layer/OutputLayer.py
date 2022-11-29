@@ -39,11 +39,11 @@ class OutputLayer(Layer):
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
         # adding bias to previous layer output
-        previous_layer_outputs = np.insert(self.previous_layer.outputs, 0, 1, axis=0)
+        previous_layer_outputs = np.insert(self.previous_layer.outputs, 0, 1, axis=-1)
 
         # for each node compute difference between output and multiply for derivative of net
         output_difference = -self.loss_function.derivative_f(expected_output, self.outputs)
-        self.error_signals = output_difference * self.activation_function.derivative_f(self.nets)
+        self.error_signals = np.multiply(output_difference, self.activation_function.derivative_f(self.nets))
 
         # compute delta
-        return np.dot(self.error_signals, previous_layer_outputs.T)
+        return np.dot(previous_layer_outputs.T, self.error_signals)

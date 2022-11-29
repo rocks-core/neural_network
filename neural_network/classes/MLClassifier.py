@@ -12,7 +12,6 @@ class MLClassifier:
             loss: LossFunction,
             optimizer,
             batch_size: int = 100,
-            learning_rate: float = 0.1,
             n_epochs: int = 100,
             shuffle: bool = False,
             verbose: bool = False,
@@ -30,7 +29,6 @@ class MLClassifier:
         self.number_layers = len(layers)
         self.optimizer = optimizer
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
         self.n_epochs = n_epochs
         self.shuffle = shuffle
         self.verbose = verbose
@@ -47,7 +45,7 @@ class MLClassifier:
         deltas = []
 
         if len(pattern.shape) == 1:
-            pattern = pattern.reshape(-1, 1)  # transform input pattern to raw vector (shape (n, 1))
+            pattern = pattern.reshape(1, -1)  # transform input pattern to raw vector (shape (n, 1))
 
         # forwarding phase
         self.predict(pattern)
@@ -63,7 +61,7 @@ class MLClassifier:
 
         return deltas
 
-    def fit(self, inputs: np.array, expected_outputs: np.array) -> tuple:
+    def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: tuple = None) -> tuple:
         """
 		:param inputs:
 		:param expected_outputs:
@@ -71,29 +69,33 @@ class MLClassifier:
 		"""
         train_loss = []
         train_accuracy = []
+        validation_loss = []
+        validation_accuracy = []
+        if len(expected_outputs.shape) == 1:
+            expected_outputs = expected_outputs.reshape(-1, 1)
         for iter_number in range(self.n_epochs):  # iterating for the specified epochs
 
-            train_loss.append(self.loss.f(expected_outputs.reshape(1, -1), self.predict(inputs.T)))
-            train_accuracy.append(self.evaluate(inputs.T, expected_outputs.reshape(1, -1)))  # predict all the inputs together
+            train_loss.append(np.mean(self.loss.f(expected_outputs, self.predict(inputs))))
+            train_accuracy.append(self.evaluate(inputs, expected_outputs))  # predict all the inputs together
+
+            if validation_data:
+                validation_loss.append(np.mean(self.loss.f(validation_data[1], self.predict(validation_data[0]))))
+                validation_accuracy.append(self.evaluate(validation_data[0], validation_data[1]))
 
             if self.verbose:
-                print(f"Iteration {iter_number + 1}/{self.n_epochs}\tLoss {train_loss[-1]}\tAccuracy {train_accuracy[-1]}")
-            batched_patterns = [_ for _ in zip(inputs, expected_outputs)]  # group patterns in batches
-            for (batch_number, batch) in enumerate(
-                    utils.chunks(batched_patterns, self.batch_size)):  # iterate over batches
-                sum_of_deltas = []  # accumulator of deltas belonging to the batch
-                for (pattern, expected_output) in batch:  # iterate over pattern of a single batch
-                    deltas = self.__fit_pattern(pattern, expected_output)
+                print(f"Iteration {iter_number + 1}/{self.n_epochs}\tLoss {train_loss[-1]:.5f}\tAccuracy {train_accuracy[-1]:.5f}", end="")
+                if validation_data:
+                    print(f"\tval loss {validation_loss[-1]:.5f}\tval accuracy {validation_accuracy[-1]:.5f}", end="")
+                print("")
+            # batched_patterns = [_ for _ in zip(inputs, expected_outputs)]  # group patterns in batches
+            for (batch_number, (batch_in, batch_out)) in enumerate(
+                    utils.chunks(inputs, expected_outputs, self.batch_size)):  # iterate over batches
 
-                    # accumulate deltas of the same batch
-                    if sum_of_deltas == []:
-                        sum_of_deltas = deltas
-                    else:
-                        for index in range(len(sum_of_deltas)):
-                            sum_of_deltas[index] += deltas[index]
+                deltas = self.__fit_pattern(batch_in, batch_out)
+                # deltas = list(map(lambda x: np.divide(x, len(batch_out)), deltas))
 
                 # at the end of batch update weights
-                self.optimizer.apply(self.layers, sum_of_deltas)  # changed from delta to sum_of_deltas
+                self.optimizer.apply(self.layers, deltas)  # changed from delta to sum_of_deltas
         return train_loss, train_accuracy
 
     def predict(self, input: np.array) -> np.array:

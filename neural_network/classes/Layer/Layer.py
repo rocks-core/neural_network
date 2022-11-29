@@ -23,7 +23,7 @@ class Layer:
 		self.built = False
 
 	def build(self, previous_layer):
-		self.weights = self.initializer(shape=(self.number_units, previous_layer.number_units + 1))
+		self.weights = self.initializer(shape=(previous_layer.number_units + 1, self.number_units))
 		previous_layer.next_layer = self
 		self.previous_layer = previous_layer
 		self.built = True
@@ -40,10 +40,10 @@ class Layer:
 		if not self.built:
 			raise Exception("Layer not built, add it to a network")
 
-		input_vector = np.insert(input_vector, 0, 1, axis=0)  # adding bias term to input
+		input_vector = np.insert(input_vector, 0, 1, axis=-1)  # adding bias term to input
 
 		# compute input times matrix weights
-		self.nets = np.dot(self.weights, input_vector)
+		self.nets = np.dot(input_vector, self.weights)
 
 		# for each net result apply activation function
 		self.outputs = self.activation_function.f(self.nets)

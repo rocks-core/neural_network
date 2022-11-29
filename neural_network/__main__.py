@@ -29,8 +29,8 @@ if __name__ == "__main__":
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
 	layers = [
-			InputLayer((tr_inputs.shape[-1], None), 5, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
-			HiddenLayer(8, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)),
+			InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
+			HiddenLayer(8, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
 			OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
 	]
 
@@ -39,27 +39,19 @@ if __name__ == "__main__":
 		classifier = MLClassifier(
 			layers=layers,
 			loss=loss_function,
-			optimizer=SGD(learning_rate=0.05, momentum=0, regularization=0.0001),
+			optimizer=SGD(learning_rate=0.001, momentum=0, regularization=0.0001),
 			batch_size=100,
-			learning_rate=0.001,
-			n_epochs=500,
+			n_epochs=1000,
 			verbose=True
 		)
 		# training model
-		classifier.fit(tr_inputs, tr_outputs)
+		classifier.fit(tr_inputs, tr_outputs, validation_data=(vl_inputs, vl_outputs))
 		print("Done training")
 
 		# validating result
 		correct_predictions = 0
 
-		for (input, expected_output) in zip(vl_inputs, vl_outputs):
-			input = input.reshape(-1, 1)  # inputs have to be row vector shape (n, 1)
-			real_output = classifier.predict(input)[0, 0]  # output is a (1,1) matrix now
-
-			if round(real_output) == expected_output:
-				correct_predictions += 1
-
-		trials.append(100 * (correct_predictions / len(vl_df)))
+		trials.append(100 * classifier.evaluate(vl_inputs, vl_outputs))
 
 	print(trials)
 	print(f"min: {min(trials)}")

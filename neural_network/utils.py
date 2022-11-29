@@ -7,10 +7,10 @@ __all__ = [
 ]
 
 
-def chunks(lst, n):
+def chunks(inputs, expected_outputs, n):
     """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+    for i in range(0, len(inputs), n):
+        yield inputs[i:i + n], expected_outputs[i:i + n]
 
 
 def split_samples(

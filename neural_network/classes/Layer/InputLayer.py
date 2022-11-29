@@ -19,7 +19,7 @@ class InputLayer(Layer):
         self.inputs = None
 
     def build(self) -> None:
-        self.weights = self.initializer(shape=(self.number_units, self.input_shape[0] + 1))
+        self.weights = self.initializer(shape=(self.input_shape[-1] + 1, self.number_units))
         self.built = True
 
     def match_shape(self, v):
@@ -54,15 +54,15 @@ class InputLayer(Layer):
         """
 
         # add the bias
-        inputs = np.insert(self.inputs, 0, 1, axis=0)
+        inputs = np.insert(self.inputs, 0, 1, axis=-1)
 
         # remove the weight corresponding to bias
-        next_layer_weights = self.next_layer.weights[:, 1:]
+        next_layer_weights = self.next_layer.weights[1:, :]
 
         # for each next layer node do dot product between error signal and incoming weight from current unit
-        self.error_signals = np.dot(next_layer_weights.T, self.next_layer.error_signals)
+        self.error_signals = np.dot(self.next_layer.error_signals, next_layer_weights.T)
 
         derivative_applied_on_nets = self.activation_function.derivative_f(self.nets)
         self.error_signals = np.multiply(self.error_signals, derivative_applied_on_nets)
 
-        return np.dot(self.error_signals, inputs.T)
+        return np.dot(inputs.T, self.error_signals)
