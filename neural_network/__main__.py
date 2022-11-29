@@ -5,8 +5,27 @@ from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD
 from neural_network.classes.Initializer import Uniform
+from neural_network.classes.Validation import Hyperparameter, ConfigurationGenerator
 import neural_network.utils
 import numpy as np
+
+## test
+cg = ConfigurationGenerator(
+    {
+        "num_layers" : Hyperparameter(
+            generator_logic = "all_from_list", 
+            generator_space = [4, 5, 6, 7]),
+        
+        "lambda" : Hyperparameter(
+            generator_logic = "random_choice_from_range", 
+            generator_space = (0.1, 0.6), 
+            random_elements_to_generate = 2),
+    })
+
+    
+for config in cg:
+	print(config)
+exit(0)
 
 if __name__ == "__main__":
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
