@@ -3,7 +3,7 @@ from neural_network import LossFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
-from neural_network.classes.Optimizers import SGD
+from neural_network.classes.Optimizers import SGD, NesterovSGD
 from neural_network.classes.Initializer import Uniform
 import neural_network.utils
 import numpy as np
@@ -38,9 +38,9 @@ if __name__ == "__main__":
 		classifier = MLClassifier(
 			layers=layers,
 			loss=loss_function,
-			optimizer=SGD(learning_rate=0.05, momentum=0., regularization=0.),
+			optimizer=NesterovSGD(learning_rate=0.1, momentum=0.9, regularization=0.),
 			batch_size=100,
-			n_epochs=1000,
+			n_epochs=300,
 			verbose=True
 		)
 		# training model
@@ -57,7 +57,3 @@ if __name__ == "__main__":
 	print(f"max: {max(trials)}")
 	avg = lambda l: sum(l) / len(l) if len(l) != 0 else 0
 	print(f"avg: {avg(trials)}")
-
-	dict = {"unit_1": hp.Choice([4, 10, 16]), "learning_rate": hp.Float([0.0001, 0.1], 5), "unit_2": hp.Int([30, 50])}
-	for hp in tuner(dict):
-		yield model_builder(hp)
