@@ -4,9 +4,7 @@ from neural_network import MLClassifier
 from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD, NesterovSGD
-from neural_network import Validation
 from neural_network.classes.Initializer import Uniform
-from neural_network.classes.Validation import Hyperparameter, ConfigurationGenerator
 import neural_network.utils
 import numpy as np
 
