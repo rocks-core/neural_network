@@ -26,7 +26,7 @@ cg = ConfigurationGenerator(
     
 for config in cg:
 	print(config)
-exit(0)
+
 
 if __name__ == "__main__":
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]

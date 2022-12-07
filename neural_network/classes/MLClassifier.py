@@ -114,4 +114,4 @@ class MLClassifier:
 
 	def evaluate(self, input: np.array, expected_output: np.array):
 		output = self.predict(input)
-		return np.mean(expected_output == np.rint(output))
+		return np.mean(expected_output == np.rint(output)) #TODO why rint?

@@ -1,6 +1,5 @@
 
 import itertools
-import Hyperparameter
 
 
 class ConfigurationGenerator():
