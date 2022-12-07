@@ -33,7 +33,7 @@ class MLClassifier:
 		self.shuffle = shuffle
 		self.verbose = verbose
 
-	def __fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
+	def fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
 		"""
 		Fits the neural network using the single specified pattern
 
@@ -93,12 +93,12 @@ class MLClassifier:
 			for (batch_number, (batch_in, batch_out)) in enumerate(
 					utils.chunks(inputs, expected_outputs, self.batch_size)):  # iterate over batches
 
-				deltas = self.__fit_pattern(batch_in, batch_out)
+				# deltas = self.__fit_pattern(batch_in, batch_out)
 				# deltas = list(map(lambda x: np.divide(x, len(batch_out)), deltas))
 
 				# at the end of batch update weights
-				self.optimizer.apply(self.layers, deltas)  # changed from delta to sum_of_deltas
-		return train_loss, train_accuracy
+				self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
+		return train_loss, train_accuracy, validation_loss, validation_accuracy
 
 	def predict(self, input: np.array) -> np.array:
 		"""
