@@ -1,5 +1,6 @@
 from neural_network.classes.LossFunctions import LossFunction
 from neural_network import utils
+from neural_network.classes.Validation import EarlyStopping
 from neural_network.classes.Results import Result
 import numpy as np
 import pickle
@@ -63,28 +64,60 @@ class MLClassifier:
 
 		return deltas
 
-	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: list = None) -> Result:
+	def fit(
+			self,
+			inputs: np.array,
+			expected_outputs: np.array,
+			validation_data: list = None,
+			early_stopping: EarlyStopping = None
+	) -> Result:
 		"""
 		:param inputs:
 		:param expected_outputs:
+		:param validation_data:
+		:param early_stopping:
 		:return:
 		"""
 		train_loss = []
 		train_accuracy = []
 		validation_loss = []
 		validation_accuracy = []
+
 		if len(expected_outputs.shape) == 1:
 			expected_outputs = expected_outputs.reshape(-1, 1)
+
 		if validation_data and len(validation_data[1].shape) == 1:
 			validation_data[1] = validation_data[1].reshape(-1, 1)
-		for iter_number in range(self.n_epochs):  # iterating for the specified epochs
 
+		# iterating over the epochs
+		for iter_number in range(self.n_epochs):
+			# append computed loss/accuracy over training set
 			train_loss.append(np.mean(self.loss.f(expected_outputs, self.predict(inputs))))
 			train_accuracy.append(self.evaluate(inputs, expected_outputs))  # predict all the inputs together
 
+			# if a validation set is specified, compute loss/accuracy over it
 			if validation_data:
 				validation_loss.append(np.mean(self.loss.f(validation_data[1], self.predict(validation_data[0]))))
 				validation_accuracy.append(self.evaluate(validation_data[0], validation_data[1]))
+
+			# verify if it's the case on an early stopping
+			if early_stopping is not None:
+				# pick the monitored metric
+				if early_stopping.monitor == "train_loss":
+					metric_values = train_loss[-1]
+				elif early_stopping.monitor == "train_accuracy":
+					metric_values = train_accuracy[-1]
+				elif early_stopping.monitor == "validation_loss":
+					metric_values = validation_loss[-1]
+				elif early_stopping.monitor == "validation_accuracy":
+					metric_values = validation_accuracy[-1]
+
+				if early_stopping.is_early_stopping((self.layers, metric_values)): # check if it is a case of early stopping
+					if early_stopping.restore_best_weight:
+						# restore best weights
+						old_layers = early_stopping.get_best_weights()
+						self.layers = old_layers
+					break # stop training
 
 			if self.verbose:
 				print(
@@ -93,23 +126,26 @@ class MLClassifier:
 				if validation_data:
 					print(f"\tval loss {validation_loss[-1]:.5f}\tval accuracy {validation_accuracy[-1]:.5f}", end="")
 				print("")
+
 			# group patterns in batches
-			for (batch_number, (batch_in, batch_out)) in enumerate(
-					utils.chunks(inputs, expected_outputs, self.batch_size)):  # iterate over batches
+			batches = utils.chunks(inputs, expected_outputs, self.batch_size)
+			for (batch_in, batch_out) in batches:  # iterate over batches
+				self.optimizer.apply(self, batch_in, batch_out) # update the weights
 
-				# deltas = self.__fit_pattern(batch_in, batch_out)
-				# deltas = list(map(lambda x: np.divide(x, len(batch_out)), deltas))
-
-				# at the end of batch update weights
-				self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
-		result = Result(metrics={"train_loss": train_loss[-1],
-								 "train_acc": train_accuracy[-1],
-								 "val_loss": validation_loss[-1],
-								 "val_acc": validation_accuracy[-1]},
-						result={"train_loss_curve": train_loss,
-								"train_acc_curve": train_accuracy,
-								"val_loss_curve": validation_loss,
-								"val_acc_curve": validation_accuracy})
+		result = Result(
+			metrics={
+				"train_loss": train_loss[-1],
+				 "train_acc": train_accuracy[-1],
+				 "val_loss": validation_loss[-1],
+				 "val_acc": validation_accuracy[-1]
+			},
+			result={
+				"train_loss_curve": train_loss,
+				"train_acc_curve": train_accuracy,
+				"val_loss_curve": validation_loss,
+				"val_acc_curve": validation_accuracy
+			}
+		)
 		return result
 
 	def predict(self, input: np.array) -> np.array:
@@ -126,7 +162,7 @@ class MLClassifier:
 
 	def evaluate(self, input: np.array, expected_output: np.array):
 		output = self.predict(input)
-		return np.mean(expected_output == np.rint(output)) #TODO why rint?
+		return np.mean(expected_output == np.rint(output))
 
 	def dump_model(self, path):
 		with open(path, "wb") as file:
