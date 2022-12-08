@@ -5,10 +5,11 @@ from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD, NesterovSGD
 from neural_network.classes.Initializer import Uniform
+from neural_network.classes.Validation import ConfigurationGenerator, Hyperparameter, model_builder
 import neural_network.utils
 import numpy as np
 
-if __name__ == "__main__":
+def main():
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 	dataset_class_column = "class"
 	number_inputs = len(dataset_attribute_columns)
@@ -27,33 +28,76 @@ if __name__ == "__main__":
 	vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
 	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
-	layers = [
-		InputLayer((None, tr_inputs.shape[-1]), 5, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
-		HiddenLayer(8, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)),
-		OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1))
-	]
 
-	trials = []
-	for _ in range(n_trials):
-		classifier = MLClassifier(
-			layers=layers,
-			loss=loss_function,
-			optimizer=NesterovSGD(learning_rate=0.1, momentum=0.9, regularization=0.),
-			batch_size=100,
-			n_epochs=1000,
+	grid = test_grid_search()
+
+	for config in grid:
+		model = model_builder(
+			config=config,
+			input_shape= tr_inputs.shape[-1],
+			output_shape=1,
 			verbose=True
 		)
-		# training model
-		classifier.fit(tr_inputs, tr_outputs, validation_data=[vl_inputs, vl_outputs])
-		print("Done training")
 
-		# validating result
-		correct_predictions = 0
+		model.fit(tr_inputs, tr_outputs, validation_data=(vl_inputs, vl_outputs))
 
-		trials.append(100 * classifier.evaluate(vl_inputs, vl_outputs))
 
-	print(trials)
-	print(f"min: {min(trials)}")
-	print(f"max: {max(trials)}")
-	avg = lambda l: sum(l) / len(l) if len(l) != 0 else 0
-	print(f"avg: {avg(trials)}")
+
+def test_grid_search():
+	return ConfigurationGenerator(
+		mode = "grid",
+		num_trials = 1,
+		folded_hyper_space={
+
+			"loss_function" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ LossFunctions.MSE ]
+			),
+			"optimizer" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ NesterovSGD ]
+			),
+			"optimizer_learning_rate" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ 0.1 ]
+			),
+			"optimizer_momentum" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ 0.9 ]
+			),
+			"optimizer_regularization" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ 0. ]
+			),
+			"batch_size" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[200]
+			),
+			"num_epochs" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[ 1000 ]
+			),
+			"num_hidden_layers" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[3]
+			),
+			"neurons_in_layer_1" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[20, 30]
+			),
+			"neurons_in_layer_2" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[20, 30]
+			),
+			"neurons_in_layer_3" : Hyperparameter(
+					generator_logic="all_from_list",
+					generator_space=[20, 30]
+			)
+		}
+	)
+
+
+
+if __name__ == "__main__":
+
+	main()
