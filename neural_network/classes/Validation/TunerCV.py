@@ -16,7 +16,6 @@ class TunerCV: # TODO still to complete
         self.verbose = verbose
     
     def fit(self, trainval_inputs, trainval_outputs): #TODO  parallelize
-
         for config in self.configurations:
             
             if self.verbose:

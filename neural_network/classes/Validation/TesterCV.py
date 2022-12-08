@@ -13,35 +13,19 @@ class TesterCV:
 		self.results = []
 		self.verbose = verbose
 
-	"""
 	def fit(self, inputs, outputs):  # TODO  parallelize
-		for config in self.configurations:
+		fold_results = []
+		for (fold_trainval_indexes, fold_test_indexes) in self.k_fold.get_folds():
+			# select test and trainval set
+			fold_trainval_inputs, fold_trainval_outputs = inputs[fold_trainval_indexes], outputs[fold_trainval_indexes]
+			fold_test_inputs, fold_test_outputs = inputs[fold_test_indexes], outputs[fold_test_indexes]
 
-			fold_results = []
-			for (fold_test_indexes, fold_trainval_indexes) in self.k_fold.get_folds():
-				model = self.model_builder(config)
+			# fit the tuner with the trainval
+			self.tuner.fit(fold_trainval_inputs, fold_trainval_outputs)
 
+			# get the model with the best hyperparameters obtained in the folds
+			model = None
 
-
-				fold_tr_inputs, fold_tr_outputs = trainval_inputs[fold_tr_indexes], trainval_outputs[fold_tr_indexes]
-				fold_vl_inputs, fold_vl_outputs = trainval_inputs[fold_vl_indexes], trainval_outputs[fold_vl_indexes]
-
-				result = model.fit(
-					fold_tr_inputs,
-					fold_tr_outputs,
-					(fold_vl_inputs, fold_vl_outputs)
-				)
-
-				fold_results.append(result)
-
-			fold_mean = fold_results.mean()  # TODO it depends on the output of model.evaluate()
-
-			self.results.append((config, fold_results))
-	"""
-
-	def best_model(self):
-		# TODO: logic to select the best model based on self.results
-		return self.best_model
-
-	def all_history(self):
-		return self.all_history
+			# assess the model risk on the testset
+			evaluation_result = model.evaluate(fold_test_inputs, fold_test_outputs)
+			self.results.append((model, evaluation_result))
