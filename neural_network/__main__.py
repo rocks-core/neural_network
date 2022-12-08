@@ -21,14 +21,14 @@ def main():
 		vl_size=0.3,
 		ts_size=0.0
 	)
-	
 
-	tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-	tr_outputs = tr_df[dataset_class_column].to_numpy()
-	vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
-	
+    tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
+    tr_outputs = tr_df[dataset_class_column].to_numpy()
+    vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
+    vl_outputs = vl_df[dataset_class_column].to_numpy()
+
+
 	grid = test_grid_search()
 
 	for config in grid:
@@ -49,7 +49,7 @@ def test_grid_search():
 		mode = "grid",
 		num_trials = 1,
 		folded_hyper_space={
-			
+
 			"loss_function" : Hyperparameter(
 					generator_logic="all_from_list",
 					generator_space=[ LossFunctions.MSE ]
@@ -100,5 +100,5 @@ def test_grid_search():
 
 
 if __name__ == "__main__":
-	
+
 	main()

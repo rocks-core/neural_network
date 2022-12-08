@@ -5,21 +5,23 @@ from neural_network.classes.Results import *
 
 class ResultCollection:
     def __init__(self):
-        self.dictionary = {}
+        self.list = []
 
-    def add_result(self, result, key=None):
-        if not key:
-            key = len(self.dictionary)
-        self.dictionary[key] = result
+    def add_result(self, result):
+        self.list.append(result)
+
+    def sort(self, metric, reversed):
+        self.list.sort(key=lambda r: r.metrics[metric], reverse=reversed)
+
 
     def __iter__(self):
-        return self.dictionary.items()
+        return self.list.__iter__()
 
-    def plot(self, key, *args, **kwargs):
-        self.dictionary[key].plot(*args, **kwargs)
+    def plot(self, i, *args, **kwargs):
+        self.list[i].plot(*args, **kwargs)
 
     def plot_all(self, *args, **kwargs):
-        for r in self.dictionary.values():
+        for r in self.list:
             r.plot(*args, **kwargs)
 
     def dump(self, path):
