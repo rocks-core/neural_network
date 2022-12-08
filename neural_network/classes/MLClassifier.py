@@ -63,7 +63,7 @@ class MLClassifier:
 
 		return deltas
 
-	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: tuple = None) -> tuple:
+	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: list = None) -> tuple:
 		"""
 		:param inputs:
 		:param expected_outputs:
@@ -75,6 +75,8 @@ class MLClassifier:
 		validation_accuracy = []
 		if len(expected_outputs.shape) == 1:
 			expected_outputs = expected_outputs.reshape(-1, 1)
+		if validation_data and len(validation_data[1].shape) == 1:
+			validation_data[1] = validation_data[1].reshape(-1, 1)
 		for iter_number in range(self.n_epochs):  # iterating for the specified epochs
 
 			train_loss.append(np.mean(self.loss.f(expected_outputs, self.predict(inputs))))
