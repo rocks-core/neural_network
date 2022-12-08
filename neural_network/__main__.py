@@ -39,7 +39,7 @@ def main():
 			verbose=True
 		)
 
-		model.fit(tr_inputs, tr_outputs, validation_data=(vl_inputs, vl_outputs))
+		model.fit(tr_inputs, tr_outputs, validation_data=[vl_inputs, vl_outputs])
 
 
 
