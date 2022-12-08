@@ -44,7 +44,7 @@ if __name__ == "__main__":
 			verbose=True
 		)
 		# training model
-		classifier.fit(tr_inputs, tr_outputs, validation_data=(vl_inputs, vl_outputs))
+		classifier.fit(tr_inputs, tr_outputs, validation_data=[vl_inputs, vl_outputs])
 		print("Done training")
 
 		# validating result
