@@ -103,14 +103,14 @@ class MLClassifier:
                 # at the end of batch update weights
                 self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
         metrics = {"train_loss": train_loss[-1], "train_acc": train_accuracy[-1]}
-        curves = {"train_loss_curve": train_loss, "train_acc_curve": train_accuracy}
+        history = {"train_loss_curve": train_loss, "train_acc_curve": train_accuracy}
         if validation_data:
             metrics["val_loss"] = validation_loss[-1]
             metrics["val_acc"] = validation_accuracy[-1]
-            curves["val_loss_curve"] = validation_loss,
-            curves["val_acc_curve"] = validation_accuracy
+            history["val_loss_curve"] = validation_loss,
+            history["val_acc_curve"] = validation_accuracy
         result = Result(metrics=metrics,
-                        result=curves)
+                        history=history)
         return result
 
     def predict(self, input: np.array) -> np.array:

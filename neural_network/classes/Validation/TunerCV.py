@@ -47,7 +47,7 @@ class TunerCV:  # TODO still to complete
 
 
     def best_params(self, metric, reverse):
-        self.results.sort(metric, reversed=reverse)
+        self.results.sort(metric, reverse=reverse)
         a = self.results.list[0]
         a = a.hp_config
         return a
