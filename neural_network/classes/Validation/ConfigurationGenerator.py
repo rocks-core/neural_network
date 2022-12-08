@@ -48,6 +48,7 @@ class ConfigurationGenerator:
             
 
     def __iter__(self):
+        self.iter_index = -1
         return self
 
     def __next__(self):
