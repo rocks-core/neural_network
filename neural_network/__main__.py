@@ -8,12 +8,11 @@ from neural_network.classes.Initializer import Uniform
 from neural_network.classes.Validation import ConfigurationGenerator, Hyperparameter, model_builder
 import neural_network.utils
 import numpy as np
+import pandas as pd
 
 def main():
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 	dataset_class_column = "class"
-	number_inputs = len(dataset_attribute_columns)
-	loss_function = LossFunctions.MSE()
 
 	tr_df, vl_df, _ = neural_network.utils.split_samples(
 		df=datasets.read_monk1()[0],
@@ -21,13 +20,15 @@ def main():
 		vl_size=0.3,
 		ts_size=0.0
 	)
-	
 
-	tr_inputs = tr_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-	tr_outputs = tr_df[dataset_class_column].to_numpy()
-	vl_inputs = vl_df[dataset_attribute_columns].to_numpy(dtype=np.float32)
-	vl_outputs = vl_df[dataset_class_column].to_numpy()
 
+	tr_df = pd.get_dummies(tr_df, columns=dataset_attribute_columns)
+	vl_df = pd.get_dummies(vl_df, columns=dataset_attribute_columns)
+
+	tr_outputs = tr_df.pop("class").to_numpy()
+	tr_inputs = tr_df.to_numpy(dtype=np.float32)
+	vl_outputs = vl_df.pop("class").to_numpy()
+	vl_inputs = vl_df.to_numpy(dtype=np.float32)
 	
 	grid = test_grid_search()
 
@@ -72,7 +73,7 @@ def test_grid_search():
 			),
 			"batch_size" : Hyperparameter(
 					generator_logic="all_from_list",
-					generator_space=[200]
+					generator_space=[ 200 ]
 			),
 			"num_epochs" : Hyperparameter(
 					generator_logic="all_from_list",
@@ -80,19 +81,19 @@ def test_grid_search():
 			),
 			"num_hidden_layers" : Hyperparameter(
 					generator_logic="all_from_list",
-					generator_space=[3]
+					generator_space=[ 3 ]
 			),
 			"neurons_in_layer_1" : Hyperparameter(
 					generator_logic="all_from_list",
-					generator_space=[20, 30]
+					generator_space=[ 30 ]
 			),
 			"neurons_in_layer_2" : Hyperparameter(
 					generator_logic="all_from_list",
-					generator_space=[20, 30]
+					generator_space=[ 30 ]
 			),
 			"neurons_in_layer_3" : Hyperparameter(
 					generator_logic="all_from_list",
-					generator_space=[20, 30]
+					generator_space=[ 30 ]
 			)
 		}
 	)
