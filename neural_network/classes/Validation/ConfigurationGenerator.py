@@ -3,7 +3,7 @@ import itertools
 import random
 
 
-class ConfigurationGenerator():
+class ConfigurationGenerator:
     """
     Given the rules for the hyperparmeters generation, you can iterate this objet to pass to the model builder a dict
     with a configuration, the rules are expressed are a dict{ hyperparemeter : possible_values } where possible 
@@ -11,7 +11,7 @@ class ConfigurationGenerator():
     creteia
 
     """
-    def __init__(self, folded_hyper_space : dict, mode : str, num_trials : int = -1) -> dict:
+    def __init__(self, folded_hyper_space: dict, mode: str, num_trials: int = -1):
 
         """
         :param folded_hyper_space: a dict where keys are strings and values are Hyperparameter objects i.e. they contains the rules to be iterated
@@ -29,7 +29,7 @@ class ConfigurationGenerator():
             cartesian_iterator = itertools.product(*unfolded_hyper_space.values())
             configurations_list = [i for i in cartesian_iterator]
             self.configurations = [{
-                a : b for (a, b) in zip(unfolded_hyper_space.keys(), configurations_list[j])  
+                a: b for (a, b) in zip(unfolded_hyper_space.keys(), configurations_list[j])
                 } 
                 for j in range(len(configurations_list))
                 ]
