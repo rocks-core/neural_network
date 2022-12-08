@@ -1,6 +1,7 @@
 
 import itertools
 import random
+from neural_network.classes.Validation import Hyperparameter
 
 
 class ConfigurationGenerator():
@@ -15,17 +16,24 @@ class ConfigurationGenerator():
 
         """
         :param folded_hyper_space: a dict where keys are strings and values are Hyperparameter objects i.e. they contains the rules to be iterated
+        :param mode: grid or random, if grid the cartesian product will be used, if random a random value for each hyperparameter in each configuration generated
+        :param num_trials: the number of configurations to generate, only used if mode is random search
         """
 
+        # check of validity
+        if mode=="grid":
+            for key, value in folded_hyper_space.items():
+                if not value.unfold:
+                    raise Exception("Found an unfolded hyperparameter in a grid search, this will cause an infinite loop")
+        
         self.configurations = []
         unfolded_hyper_space = {}
-
-        for key, value in folded_hyper_space.items():
-            #value is an istance of Hyperparamenter class, simply unfold with iteration
-            unfolded_hyper_space[key] = [_ for _ in value]
-
+        
         if mode == "grid":
             
+            for key, values in folded_hyper_space.items():
+                unfolded_hyper_space[key] = [_ for _ in values]
+      
             cartesian_iterator = itertools.product(*unfolded_hyper_space.values())
             configurations_list = [i for i in cartesian_iterator]
             self.configurations = [{
@@ -35,19 +43,32 @@ class ConfigurationGenerator():
                 ]
         
         if mode == "random":
+
+            for key, values in folded_hyper_space.items():
+                
+                if values.unfold: # i can iterate 
+                    unfolded_hyper_space[key] = [_ for _ in values]
+                else: # i can't iterate (infinite)
+                    unfolded_hyper_space[key] = values
+
+
             for i in range(num_trials):
                 current_conf = {}
                 for hp, values in unfolded_hyper_space.items():
-                    value = random.choice(values)
-                    current_conf[hp] = value
-                self.configurations.append(current_conf)
-        
-        self.iter_index = -1
-        self.iter_len = len(self.configurations)
-
-            
+                    if isinstance(values, list):
+                        value = random.choice(values)
+                        current_conf[hp] = value
+                    elif not values.unfold:
+                        value = next(values)
+                        current_conf[hp] = value
+                    else:
+                        raise Exception("Unknown error")
+                
+                self.configurations.append(current_conf)         
 
     def __iter__(self):
+        self.iter_index = -1
+        self.iter_len = len(self.configurations)
         return self
 
     def __next__(self):

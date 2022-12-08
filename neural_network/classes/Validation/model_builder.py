@@ -5,6 +5,14 @@ from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Initializer import Uniform
 
 def model_builder(config : dict, verbose : bool, input_shape : int, output_shape : int):
+    """
+    Given a cofiguration, i.e. a dict that maps the hyperparameter name with the current value, this function built the model
+    
+    :param verbose: verbose, it is also passed to the model
+    :input shape: the size of the input vector (input layer)
+    :output shape: the size of the output vector (output layer) 
+    """
+    
     num_layer = config["num_hidden_layers"]
 
     #check if the layers before num_hidden_layers are correct
