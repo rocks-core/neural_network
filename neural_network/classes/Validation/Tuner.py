@@ -4,20 +4,16 @@ from neural_network.classes.Validation import K_fold
 class Tuner(): # TODO still to complete
 
     def __init__(self, 
-        train_set_input,
-        train_set_output,
-        val_set_input,
-        val_set_output, 
+        trainval_set_input,
+        trainval_set_output,
         configurations : ConfigurationGenerator,
         model_builder, 
         k_fold : K_fold,
         verbose : bool
         ):
 
-        self.train_set_inpu = train_set_input
-        self.train_set_output = train_set_output
-        self.val_set_input = val_set_input
-        self.val_set_output = val_set_output
+        self.trainval_set_input = trainval_set_input
+        self.trainval_set_output = trainval_set_output
         self.configurations = configurations
         self.model_builder = model_builder
         self.k_fold = k_fold
@@ -32,11 +28,13 @@ class Tuner(): # TODO still to complete
                 print("Building model with the following configuration:", config)
             
             model = self.model_builder(config)
+            if model is None:
+                pass
             
             fold_results = []
             for (fold_tr_indexes, fold_vl_indexes) in self.k_fold.get_folds():
-                fold_tr_inputs, fold_tr_outputs = self.train_set_inpu[fold_tr_indexes], self.train_set_output[fold_tr_indexes]
-                fold_vl_inputs, fold_vl_outputs = self.val_set_input[fold_vl_indexes], self.val_set_output[fold_vl_indexes]
+                fold_tr_inputs, fold_tr_outputs = self.trainval_set_input[fold_tr_indexes], self.trainval_set_output[fold_tr_indexes]
+                fold_vl_inputs, fold_vl_outputs = self.trainval_set_input[fold_vl_indexes], self.trainval_set_output[fold_vl_indexes]
             
                 model.fit(fold_tr_inputs, fold_tr_outputs)
                 evaluation = model.evaluate(fold_vl_inputs, fold_vl_outputs)
