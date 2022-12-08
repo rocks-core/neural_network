@@ -63,7 +63,7 @@ class MLClassifier:
 
 		return deltas
 
-	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: list = None) -> tuple:
+	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: list = None) -> Result:
 		"""
 		:param inputs:
 		:param expected_outputs:
