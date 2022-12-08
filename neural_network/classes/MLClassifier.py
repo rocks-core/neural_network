@@ -100,7 +100,15 @@ class MLClassifier:
 
 				# at the end of batch update weights
 				self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
-		return train_loss, train_accuracy, validation_loss, validation_accuracy
+		result = Result(metrics={"train_loss": train_loss[-1],
+								 "train_acc": train_accuracy[-1],
+								 "val_loss": validation_loss[-1],
+								 "val_acc": validation_accuracy[-1]},
+						result={"train_loss_curve": train_loss,
+								"train_acc_curve": train_accuracy,
+								"val_loss_curve": validation_loss,
+								"val_acc_curve": validation_accuracy})
+		return result
 
 	def predict(self, input: np.array) -> np.array:
 		"""
@@ -118,11 +126,11 @@ class MLClassifier:
 		output = self.predict(input)
 		return np.mean(expected_output == np.rint(output)) #TODO why rint?
 
-    def dump_model(self, path):
-        with open(path, "wb") as file:
-            pickle.dump(self, file)
+	def dump_model(self, path):
+		with open(path, "wb") as file:
+			pickle.dump(self, file)
 
-    @staticmethod
-    def load_model(path):
-        with open(path, "rb") as file:
-            return pickle.load(file)
+	@staticmethod
+	def load_model(path):
+		with open(path, "rb") as file:
+			return pickle.load(file)
