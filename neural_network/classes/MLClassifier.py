@@ -1,6 +1,7 @@
 from neural_network.classes.LossFunctions import LossFunction
 from neural_network import utils
 import numpy as np
+import pickle
 
 __all__ = ["MLClassifier"]
 
@@ -115,3 +116,12 @@ class MLClassifier:
 	def evaluate(self, input: np.array, expected_output: np.array):
 		output = self.predict(input)
 		return np.mean(expected_output == np.rint(output)) #TODO why rint?
+
+	def dump_model(self, path):
+		with open(path, "wb") as file:
+			pickle.dump(self, file)
+
+	@staticmethod
+	def load_model(path):
+		with open(path, "rb") as file:
+			return pickle.load(file)
