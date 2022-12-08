@@ -2,6 +2,7 @@ from neural_network import ActivationFunctions
 from neural_network import LossFunctions
 from neural_network import MLClassifier
 from neural_network import datasets
+from neural_network.classes.Validation import K_fold
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD, NesterovSGD
 from neural_network.classes.Initializer import Uniform
@@ -9,6 +10,11 @@ import neural_network.utils
 import numpy as np
 
 if __name__ == "__main__":
+	k_fold = K_fold(10, 3)
+	for fold in k_fold.get_folds():
+		print(fold)
+	exit(0)
+
 	dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 	dataset_class_column = "class"
 	number_inputs = len(dataset_attribute_columns)
