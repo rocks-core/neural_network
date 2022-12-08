@@ -1,7 +1,8 @@
 import pickle
 from typing import Union
 
-from neural_network.classes.Results.FoldResult import FoldResult
+from neural_network.classes.Results.ValidationResult import ValidationResult
+from neural_network.classes.Results.TestResult import TestResult
 from neural_network.classes.Results import Result
 
 
@@ -12,7 +13,7 @@ class ResultCollection:
     def __init__(self):
         self.list = []
 
-    def add_result(self, result: Union[Result, FoldResult]):
+    def add_result(self, result: Union[Result, ValidationResult, TestResult]):
         self.list.append(result)
 
     def sort(self, metric, reverse):
@@ -25,7 +26,7 @@ class ResultCollection:
     def __iter__(self):
         return self.list.__iter__()
 
-    def plot(self, i, *args, **kwargs):
+    def plot_one(self, i, *args, **kwargs):
         """
         Plot a single result of the collection
         Args:
@@ -33,7 +34,7 @@ class ResultCollection:
         """
         self.list[i].plot(*args, **kwargs)
 
-    def plot_all(self, *args, **kwargs):
+    def plot(self, *args, **kwargs):
         """
         Plot all results in the collection
         """

@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pickle
 
 
 class Result:
@@ -46,3 +47,12 @@ class Result:
         if "show" not in kwargs or kwargs["show"]:
             plt.show()
         plt.close()
+
+    def dump(self, path):
+        with open(path, "wb") as file:
+            pickle.dump(self, file)
+
+    @staticmethod
+    def load(path):
+        with open(path, "rb") as file:
+            return pickle.load(file)

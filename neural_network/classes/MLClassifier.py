@@ -34,6 +34,7 @@ class MLClassifier:
         self.n_epochs = n_epochs
         self.shuffle = shuffle
         self.verbose = verbose
+        # TODO implements metric defined by users
 
     def fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
         """
@@ -67,6 +68,7 @@ class MLClassifier:
         """
 		:param inputs:
 		:param expected_outputs:
+		:param validation_data:
 		:return:
 		"""
         train_loss = []
@@ -127,8 +129,12 @@ class MLClassifier:
 
     def evaluate(self, input: np.array, expected_output: np.array):
         output = self.predict(input)
-        return np.mean(expected_output == np.rint(output))  # TODO why rint?
+        return np.mean(expected_output == np.rint(output))
 
+    def evaluate_result(self, input: np.array, expected_output: np.array):
+        output = self.predict(input)
+        result = Result(metrics={"accuracy": np.mean(expected_output == np.rint(output))}, history={})
+        return result
     def dump_model(self, path):
         with open(path, "wb") as file:
             pickle.dump(self, file)
