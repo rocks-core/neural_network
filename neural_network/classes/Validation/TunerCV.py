@@ -46,15 +46,14 @@ class TunerCV:  # TODO still to complete
         return self.results
 
 
-    def best_params(self, metric, reversed):
-        self.results.sort(metric, reversed=reversed)
+    def best_params(self, metric, reverse):
+        self.results.sort(metric, reversed=reverse)
         a = self.results.list[0]
         a = a.hp_config
         return a
 
-    def best_model(self):
-        # TODO: logic to select the best model based on self.results
-        return self.model_builder(self.best_params("val_acc", True))
+    def best_model(self, metric, reverse):
+        return self.model_builder(self.best_params(metric, reverse))
 
     def all_history(self):
         return self.all_history
