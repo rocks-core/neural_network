@@ -1,47 +1,49 @@
 from neural_network.classes.Validation import TunerCV
 from neural_network.classes.Validation import K_fold
+from neural_network.classes.Results import *
 
 
 class TesterCV:
+	"""
+	Class to perform model assessment using K-fold cross validation
+	"""
+
 	def __init__(self,
-				 tuner: TunerCV,
-				 k_fold: K_fold,
-				 verbose: bool
-				 ):
+	             tuner: TunerCV,
+	             n_fold: int,
+	             verbose: bool
+	             ):
+		"""
+		Args:
+			tuner: the tuner to be used to do model selection with the trainval set
+			n_fold (int): number of fold
+            verbose (bool): for the moment do nothing
+		"""
 		self.tuner = tuner
-		self.k_fold = k_fold
-		self.results = []
-		self.verbose = verbose
+		self.n_fold = n_fold
+		self.results = None
+		self.verbose = verbose  # TODO use verbose somewhere or remove it
 
-	"""
 	def fit(self, inputs, outputs):  # TODO  parallelize
-		for config in self.configurations:
+		k_fold = K_fold(inputs.shape[0], self.n_fold)
+		evaluation_results = []
+		val_results = []
+		for (fold_trainval_indexes, fold_test_indexes) in k_fold.get_folds():
+			# select test and trainval set
+			fold_trainval_inputs, fold_trainval_outputs = inputs[fold_trainval_indexes], outputs[fold_trainval_indexes]
+			fold_test_inputs, fold_test_outputs = inputs[fold_test_indexes], outputs[fold_test_indexes]
 
-			fold_results = []
-			for (fold_test_indexes, fold_trainval_indexes) in self.k_fold.get_folds():
-				model = self.model_builder(config)
+			# fit the tuner with the trainval
+			val_result = self.tuner.fit(fold_trainval_inputs, fold_trainval_outputs)
 
+			# get the model with the best hyperparameters obtained in the folds and refit it
+			model = self.tuner.best_model("val_acc", True)
+			model.fit(fold_trainval_inputs, fold_trainval_outputs)
 
+			# assess the model risk on the test set
+			evaluation_result = model.evaluate_result(fold_test_inputs, fold_test_outputs)
+			evaluation_results.append(evaluation_result)
+			val_results.append(val_result)
 
-				fold_tr_inputs, fold_tr_outputs = trainval_inputs[fold_tr_indexes], trainval_outputs[fold_tr_indexes]
-				fold_vl_inputs, fold_vl_outputs = trainval_inputs[fold_vl_indexes], trainval_outputs[fold_vl_indexes]
-
-				result = model.fit(
-					fold_tr_inputs,
-					fold_tr_outputs,
-					(fold_vl_inputs, fold_vl_outputs)
-				)
-
-				fold_results.append(result)
-
-			fold_mean = fold_results.mean()  # TODO it depends on the output of model.evaluate()
-
-			self.results.append((config, fold_results))
-	"""
-
-	def best_model(self):
-		# TODO: logic to select the best model based on self.results
-		return self.best_model
-
-	def all_history(self):
-		return self.all_history
+		self.results = TestResult(evaluation_results, val_results)
+		return self.results

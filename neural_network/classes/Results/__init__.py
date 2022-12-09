@@ -1,3 +1,4 @@
 from .Result import *
 from .ResultCollection import *
-from .FoldResult import *
+from .ValidationResult import *
+from .TestResult import *

@@ -4,7 +4,7 @@ import random
 from neural_network.classes.Validation import Hyperparameter
 
 
-class ConfigurationGenerator():
+class ConfigurationGenerator:
     """
     Given the rules for the hyperparmeters generation, you can iterate this objet to pass to the model builder a dict
     with a configuration, the rules are expressed are a dict{ hyperparemeter : possible_values } where possible 
@@ -12,7 +12,7 @@ class ConfigurationGenerator():
     creteia
 
     """
-    def __init__(self, folded_hyper_space : dict, mode : str, num_trials : int = -1) -> dict:
+    def __init__(self, folded_hyper_space: dict, mode: str, num_trials: int = -1):
 
         """
         :param folded_hyper_space: a dict where keys are strings and values are Hyperparameter objects i.e. they contains the rules to be iterated
@@ -28,19 +28,19 @@ class ConfigurationGenerator():
             for key, value in folded_hyper_space.items():
                 if not value.unfold:
                     raise Exception("Found an unfolded hyperparameter in a grid search, this will cause an infinite loop")
-        
+
         self.configurations = []
         unfolded_hyper_space = {}
-        
+
         if mode == "grid":
             
             for key, values in folded_hyper_space.items():
                 unfolded_hyper_space[key] = [_ for _ in values]
-      
+
             cartesian_iterator = itertools.product(*unfolded_hyper_space.values())
             configurations_list = [i for i in cartesian_iterator]
             self.configurations = [{
-                a : b for (a, b) in zip(unfolded_hyper_space.keys(), configurations_list[j])  
+                a: b for (a, b) in zip(unfolded_hyper_space.keys(), configurations_list[j])
                 } 
                 for j in range(len(configurations_list))
                 ]
@@ -48,8 +48,8 @@ class ConfigurationGenerator():
         if mode == "random":
 
             for key, values in folded_hyper_space.items():
-                
-                if values.unfold: # i can iterate 
+
+                if values.unfold: # i can iterate
                     unfolded_hyper_space[key] = [_ for _ in values]
                 else: # i can't iterate (infinite)
                     unfolded_hyper_space[key] = values
@@ -66,8 +66,8 @@ class ConfigurationGenerator():
                         current_conf[hp] = value
                     else:
                         raise Exception("Unknown error")
-                
-                self.configurations.append(current_conf)         
+
+                self.configurations.append(current_conf)
 
     def __iter__(self):
         self.iter_index = -1

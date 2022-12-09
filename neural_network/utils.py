@@ -82,5 +82,5 @@ def get_folds(number_elements: int, n_splits: int) -> tuple:
 	for i in range(len(folds)):
 		main_elem = folds[0] # the i-th fold
 		other_elems = [folds[j] for j in range(1, len(folds))] # its counterpart
-		yield main_elem, other_elems
+		yield np.concatenate(other_elems), main_elem
 		folds.rotate(1) # rotate the folds in order to get the next one
