@@ -16,6 +16,8 @@ class ValidationResult:
         """
         self.hp_config = hp_config
         self.results = results
+        for r in self.results:
+            r.hp_config = hp_config
         self.metrics = {}
 
         # do the average of all the metrics of the result provided

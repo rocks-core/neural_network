@@ -109,7 +109,7 @@ class MLClassifier:
         if validation_data:
             metrics["val_loss"] = validation_loss[-1]
             metrics["val_acc"] = validation_accuracy[-1]
-            history["val_loss_curve"] = validation_loss,
+            history["val_loss_curve"] = validation_loss
             history["val_acc_curve"] = validation_accuracy
         result = Result(metrics=metrics,
                         history=history)

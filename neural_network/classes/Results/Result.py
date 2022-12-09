@@ -35,11 +35,12 @@ class Result:
             y = self.history[s]
             x = range(len(y))
             ax.plot(x, y, label=s)
-            ax.set_xlabel(str(s))
             ax.legend()
 
         if "title" in kwargs:
             ax.set_title(kwargs["title"])
+        else:
+            ax.set_title(str(self.hp_config))
 
         if "save_path" in kwargs:
             fig.savefig(kwargs["save_path"])
