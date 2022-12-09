@@ -22,6 +22,9 @@ class ConfigurationGenerator():
 
         # check of validity
         if mode=="grid":
+            if num_trials != -1:
+                raise Exception("In the grid search, the number of trials is the size of the cartesian product, so you cant indicate it")
+
             for key, value in folded_hyper_space.items():
                 if not value.unfold:
                     raise Exception("Found an unfolded hyperparameter in a grid search, this will cause an infinite loop")
