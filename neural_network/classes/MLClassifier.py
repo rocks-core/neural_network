@@ -102,20 +102,18 @@ class MLClassifier:
 
 			# verify if it's the case on an early stopping
 			if early_stopping is not None:
-				# pick the monitored metric
-				if early_stopping.monitor == "train_loss":
-					metric_values = train_loss[-1]
-				elif early_stopping.monitor == "train_accuracy":
-					metric_values = train_accuracy[-1]
-				elif early_stopping.monitor == "validation_loss":
-					metric_values = validation_loss[-1]
-				elif early_stopping.monitor == "validation_accuracy":
-					metric_values = validation_accuracy[-1]
-
-				if early_stopping.is_early_stopping((self.layers, metric_values)): # check if it is a case of early stopping
-					if early_stopping.restore_best_weight:
-						# restore best weights
-						self.layers = early_stopping.get_best_weights()
+				if early_stopping.add_monitored_value(
+					self.layers,
+					{
+						"train_loss": train_loss[-1],
+						"tran_accuracy": train_accuracy[-1],
+						"validation_loss": validation_loss[-1],
+						"validation_accuracy": validation_accuracy[-1]
+					}
+				): # check if it is a case of early stopping
+					# restore best weights if the end user specified so
+					self.layers = early_stopping.get_best_weights()
+					print("EARLY STOPPING")
 					break # stop training
 
 			if self.verbose:
