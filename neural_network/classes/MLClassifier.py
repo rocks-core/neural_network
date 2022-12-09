@@ -3,6 +3,7 @@ from neural_network import utils
 from neural_network.classes.Results import Result
 import numpy as np
 import pickle
+import wandb
 
 __all__ = ["MLClassifier"]
 
@@ -17,6 +18,7 @@ class MLClassifier:
             n_epochs: int = 100,
             shuffle: bool = False,
             verbose: bool = False,
+            log_wandb: bool = False
     ):
 
         layers[0].build()
@@ -34,6 +36,7 @@ class MLClassifier:
         self.n_epochs = n_epochs
         self.shuffle = shuffle
         self.verbose = verbose
+        self.log_wandb = log_wandb
         # TODO implements metric defined by users
 
     def fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
@@ -46,9 +49,6 @@ class MLClassifier:
 		is ordered, so the i-th element contains the deltas for the weights of the i-th layer
 		"""
         deltas = []
-
-        if len(pattern.shape) == 1:
-            pattern = pattern.reshape(1, -1)  # transform input pattern to raw vector (shape (n, 1))
 
         # forwarding phase
         self.predict(pattern)
@@ -75,18 +75,30 @@ class MLClassifier:
         train_accuracy = []
         validation_loss = []
         validation_accuracy = []
-        if len(expected_outputs.shape) == 1:
+
+        if len(inputs.shape) == 1:
+            inputs = inputs.reshape(1, -1)  # transform input pattern to raw vector (shape (1, n))
+        if len(expected_outputs.shape) == 1:  # transform label to column vector (shape (n, 1))
             expected_outputs = expected_outputs.reshape(-1, 1)
-        if validation_data and len(validation_data[1].shape) == 1:
-            validation_data[1] = validation_data[1].reshape(-1, 1)
+
+        if validation_data:
+            if len(validation_data[0].shape) == 1:
+                validation_data[0] = validation_data[0].reshape(-1, 1)
+            if len(validation_data[1].shape) == 1:
+                validation_data[1] = validation_data[1].reshape(-1, 1)
         for iter_number in range(self.n_epochs):  # iterating for the specified epochs
 
             train_loss.append(np.mean(self.loss.f(expected_outputs, self.predict(inputs))))
             train_accuracy.append(self.evaluate(inputs, expected_outputs))  # predict all the inputs together
-
+            metrics = {"train_loss": train_loss[-1], "train_accuracy": train_accuracy[-1]}
             if validation_data:
                 validation_loss.append(np.mean(self.loss.f(validation_data[1], self.predict(validation_data[0]))))
                 validation_accuracy.append(self.evaluate(validation_data[0], validation_data[1]))
+                metrics["validation_loss"] = validation_loss[-1]
+                metrics["validation_accuracy"] = validation_accuracy[-1]
+
+            if self.log_wandb:
+                wandb.log(metrics)
 
             if self.verbose:
                 print(
@@ -121,6 +133,9 @@ class MLClassifier:
 		:param input:
 		:return: the network output
 		"""
+
+        if len(input.shape) == 1:
+            input = input.reshape(1, -1)
         layer_input = input
         for layer in self.layers:
             output = layer.feedforward(layer_input)
@@ -128,10 +143,14 @@ class MLClassifier:
         return output
 
     def evaluate(self, input: np.array, expected_output: np.array):
+        if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
+            expected_output = expected_output.reshape(-1, 1)
         output = self.predict(input)
         return np.mean(expected_output == np.rint(output))
 
     def evaluate_result(self, input: np.array, expected_output: np.array):
+        if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
+            expected_output = expected_output.reshape(-1, 1)
         output = self.predict(input)
         result = Result(metrics={"accuracy": np.mean(expected_output == np.rint(output))}, history={})
         return result

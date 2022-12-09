@@ -77,6 +77,3 @@ class TunerCV:
         Get a (non-trained) new instance of the model with the best hyperparameters according to the specified metric
         """
         return self.model_builder(self.best_params(metric, reverse))
-
-    def all_history(self):  # TODO what should be returned?
-        return self.all_history

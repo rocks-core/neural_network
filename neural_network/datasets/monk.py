@@ -13,7 +13,7 @@ def read_monk(index: int) -> tuple:
 	:return: tuple of pandas DataFrames, the first element is the training set and the latter is the test set
 	"""
 	train_set_filepath = f"neural_network/datasets/monks-{index}.train"
-	test_set_filepath = f"neural_network/datasets/monks-{index}.train"
+	test_set_filepath = f"neural_network/datasets/monks-{index}.test"
 
 	# reading csvs
 	train_set_df = pd.read_csv(

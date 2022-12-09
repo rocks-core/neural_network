@@ -8,7 +8,7 @@ class SGD:
 		self.old_deltas = []
 
 	def apply(self, model, x, y):
-		deltas = [np.divide(d, x.shape[0]) for d in model.fit_pattern(x, y)]
+		deltas = model.fit_pattern(x, y)
 
 		if not self.old_deltas:
 			for layer, delta in zip(model.layers, deltas):
