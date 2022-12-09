@@ -1,6 +1,7 @@
 from neural_network.classes.LossFunctions import LossFunction
 from neural_network import utils
 from neural_network.classes.Results import Result
+from neural_network.classes.Metrics import Metric
 import numpy as np
 import pickle
 
@@ -13,6 +14,7 @@ class MLClassifier:
 			layers: list,
 			loss: LossFunction,
 			optimizer,
+			metrics: list[Metric],
 			batch_size: int = 100,
 			n_epochs: int = 100,
 			shuffle: bool = False,
