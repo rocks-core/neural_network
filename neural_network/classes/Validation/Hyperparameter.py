@@ -27,19 +27,19 @@ class Hyperparameter():
         :param unfold: boolean, if false it will generate infinite values, if true the "elements_to_generate" should be indicated
         :param elements_to_genetate: number of elements to yeald when unfolding the hyperparameter
         """
-
-        if generator_logic == "all_from_list":
-            unfold = True
-            elements_to_generate = len(generator_space)
-
+        
         self.unfold = unfold
+        
         # control of validity
 
-        if unfold and elements_to_generate == -1:
-            raise Exception("If you want to unfold, you have to indicate the number of elements to generate")
+        if generator_logic == "all_from_list" and not unfold:
+            raise Exception("If you use 'all_from_lits' you have to set unfold=True")
+
+        if unfold and generator_logic !="all_from_list" and  elements_to_generate == -1:
+            raise Exception("If you want to unfold a random choice hyperparameter, you have to indicate the number of elements to generate")
 
         if not unfold and elements_to_generate != -1:
-            raise Exception("If you are not unfolding the hyperparameter, it doesn't make sense to indicate the 'element_to_generate' because it will depend of the grid serach")
+            raise Exception("If you don't unfold the hyperparameter, it doesn't make sense to indicate the 'element_to_generate' because it will depend of the grid serach settings")
 
     
         
