@@ -115,8 +115,7 @@ class MLClassifier:
 				if early_stopping.is_early_stopping((self.layers, metric_values)): # check if it is a case of early stopping
 					if early_stopping.restore_best_weight:
 						# restore best weights
-						old_layers = early_stopping.get_best_weights()
-						self.layers = old_layers
+						self.layers = early_stopping.get_best_weights()
 					break # stop training
 
 			if self.verbose:
