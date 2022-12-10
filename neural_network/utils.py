@@ -3,7 +3,6 @@ import pandas as pd
 import math
 from collections import deque
 
-
 __all__ = [
 	"chunks",
 	"split_samples",
@@ -57,6 +56,7 @@ def split_samples(
 
 	return train_set_df, validation_set_df, test_set_df
 
+
 """
 def get_folds(number_elements: int, n_splits: int) -> tuple:
 	elements_per_fold = math.ceil(number_elements / n_splits)
@@ -70,6 +70,7 @@ def get_folds(number_elements: int, n_splits: int) -> tuple:
 			yield indexes[:i] + indexes[i + elements_per_fold:], indexes[i:i + elements_per_fold]
 """
 
+
 def get_folds(number_elements: int, n_splits: int) -> tuple:
 	"""
 	:param number_elements: int, number of elements that we want to fold
@@ -80,7 +81,17 @@ def get_folds(number_elements: int, n_splits: int) -> tuple:
 	folds = deque(np.array_split(indexes, n_splits))
 	# iterate over the folds
 	for i in range(len(folds)):
-		main_elem = folds[0] # the i-th fold
-		other_elems = [folds[j] for j in range(1, len(folds))] # its counterpart
+		main_elem = folds[0]  # the i-th fold
+		other_elems = [folds[j] for j in range(1, len(folds))]  # its counterpart
 		yield np.concatenate(other_elems), main_elem
-		folds.rotate(1) # rotate the folds in order to get the next one
+		folds.rotate(1)  # rotate the folds in order to get the next one
+
+
+def check_input_shape(inputs):
+	if len(inputs.shape) == 1:
+		inputs.resize(inputs.reshape(1, -1).shape)
+
+
+def check_output_shape(outputs):
+	if len(outputs.shape) == 1:
+		outputs.resize(outputs.reshape(-1, 1).shape)

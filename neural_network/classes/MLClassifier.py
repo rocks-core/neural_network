@@ -4,7 +4,6 @@ from neural_network.classes.Results import Result
 from neural_network.classes.Metrics import MetricConverter
 import numpy as np
 import pickle
-import wandb
 
 __all__ = ["MLClassifier"]
 
@@ -20,7 +19,6 @@ class MLClassifier:
 			n_epochs: int = 100,
 			shuffle: bool = False,
 			verbose: bool = False,
-			log_wandb: bool = False
 	):
 
 		layers[0].build()
@@ -48,7 +46,7 @@ class MLClassifier:
 		self.n_epochs = n_epochs
 		self.shuffle = shuffle
 		self.verbose = verbose
-		self.log_wandb = log_wandb
+		self.early_stop = False
 
 	def fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
 		"""
@@ -96,50 +94,64 @@ class MLClassifier:
 			print(k, str(v), end="\t")
 		print()
 
-	def fit(self, inputs: np.array, expected_outputs: np.array, validation_data: list = None) -> Result:
+	def fit(
+			self,
+			inputs: np.array,
+			expected_outputs: np.array,
+			validation_data: list = None,
+			epochs: int = 100,
+			callbacks: list = []
+	) -> Result:
 		"""
 		:param inputs:
 		:param expected_outputs:
 		:param validation_data:
+		:param epochs:
+		:param callbacks:
 		:return:
 		"""
 
-		if len(inputs.shape) == 1:
-			inputs = inputs.reshape(1, -1)  # transform input pattern to raw vector (shape (1, n))
-		if len(expected_outputs.shape) == 1:  # transform label to column vector (shape (n, 1))
-			expected_outputs = expected_outputs.reshape(-1, 1)
-
+		utils.check_input_shape(inputs)  # if input shape is (n,) transform it to row vector (shape (1, n))
+		utils.check_output_shape(expected_outputs)  # if output shape is (n,) transform label to column vector (shape (n, 1))
 		if validation_data:
-			if len(validation_data[0].shape) == 1:
-				validation_data[0] = validation_data[0].reshape(-1, 1)
-			if len(validation_data[1].shape) == 1:
-				validation_data[1] = validation_data[1].reshape(-1, 1)
+			utils.check_input_shape(validation_data[0])
+			utils.check_output_shape(validation_data[1])
 
 		self.initialize_metrics(bool(validation_data))
-		for iter_number in range(self.n_epochs):  # iterating for the specified epochs
+
+		# iterating over the epochs
+		for iter_number in range(epochs):
+			# compute output to compute the metrics score
 			output = self.predict(inputs)
 			val_output = None
 			val_expected_output = None
+			# if a validation set is specified, compute output also for it over it
 			if validation_data:
 				val_output = self.predict(validation_data[0])
 				val_expected_output = validation_data[1]
+			# update the scores of the metrics
 			self.update_metrics(output, expected_outputs, val_output, val_expected_output)
-
-			if self.log_wandb:
-				wandb.log(self.metrics_score)
 			if self.verbose:
-				print("Epoch ", iter_number+1, end=" ")
+				print("Epoch ", iter_number + 1, end=" ")
 				self.print_metrics()
+
+			for callback in callbacks:
+				callback(self)
+
+			if self.early_stop:
+				break
+
 			# group patterns in batches
-			for (batch_number, (batch_in, batch_out)) in enumerate(
-					utils.chunks(inputs, expected_outputs, self.batch_size)):  # iterate over batches
+			batches = utils.chunks(inputs, expected_outputs, self.batch_size)
+			for (batch_in, batch_out) in batches:  # iterate over batches
+				self.optimizer.apply(self, batch_in, batch_out)  # update the weights
 
 				# deltas = self.__fit_pattern(batch_in, batch_out)
 				# deltas = list(map(lambda x: np.divide(x, len(batch_out)), deltas))
 
 				# at the end of batch update weights
 				self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
-				# the optimizer calling the fit_pattern function will update the metrics
+			# the optimizer calling the fit_pattern function will update the metrics
 
 		return Result(metrics=self.metrics_score, history=self.metrics_history)
 
@@ -150,8 +162,7 @@ class MLClassifier:
 		:return: the network output
 		"""
 
-		if len(input.shape) == 1:
-			input = input.reshape(1, -1)
+		utils.check_input_shape(input)
 		layer_input = input
 		for layer in self.layers:
 			output = layer.feedforward(layer_input)
@@ -159,8 +170,9 @@ class MLClassifier:
 		return output
 
 	def evaluate(self, input: np.array, expected_output: np.array):
-		if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
-			expected_output = expected_output.reshape(-1, 1)
+		utils.check_input_shape(input)
+		utils.check_output_shape(expected_output)
+
 		output = self.predict(input)
 		metrics_score = {}
 		for m in self.metrics:
@@ -168,14 +180,25 @@ class MLClassifier:
 		return metrics_score
 
 	def evaluate_result(self, input: np.array, expected_output: np.array):
-		if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
-			expected_output = expected_output.reshape(-1, 1)
+		utils.check_input_shape(input)
+		utils.check_output_shape(expected_output)
+
 		output = self.predict(input)
 		metrics_score = {}
 		for m in self.metrics:
 			metrics_score[m.name] = m.f(output, expected_output)
 		result = Result(metrics=metrics_score, history={})
 		return result
+
+	def get_weights(self):
+		weights = []
+		for layer in self.layers:
+			weights.append(layer.weights.copy())
+		return weights
+
+	def set_weights(self, weights):
+		for layer, w in zip(self.layers, weights):
+			layer.weights = w.copy()
 
 	def dump_model(self, path):
 		with open(path, "wb") as file:
@@ -185,3 +208,11 @@ class MLClassifier:
 	def load_model(path):
 		with open(path, "rb") as file:
 			return pickle.load(file)
+
+	def dump_weights(self, path):
+		with open(path, "wb") as file:
+			pickle.dump(self.get_weights(), file)
+
+	def load_weights(self, path):
+		with open(path, "rb") as file:
+			self.set_weights(pickle.load(file))
