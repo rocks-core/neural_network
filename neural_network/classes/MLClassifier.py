@@ -158,29 +158,28 @@ class MLClassifier:
 			layer_input = output
 		return output
 
-    def evaluate(self, input: np.array, expected_output: np.array):
-        if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
-            expected_output = expected_output.reshape(-1, 1)
-        output = self.predict(input)
-        metrics_score = {}
-        for m in self.metrics:
+	def evaluate(self, input: np.array, expected_output: np.array):
+		if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
+			expected_output = expected_output.reshape(-1, 1)
+		output = self.predict(input)
+		metrics_score = {}
+		for m in self.metrics:
 			metrics_score[m.name] = m.f(output, expected_output)
 		return metrics_score
 
-    def evaluate_result(self, input: np.array, expected_output: np.array):
-        if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
-            expected_output = expected_output.reshape(-1, 1)
-        output = self.predict(input)
-        metrics_score = {}
-        for m in self.metrics:
-	        metrics_score[m.name] = m.f(output, expected_output)
-        return metrics_score
-        result = Result(metrics=metrics_score, history={})
-        return result
+	def evaluate_result(self, input: np.array, expected_output: np.array):
+		if len(expected_output.shape) == 1:  # transform label to column vector (shape (n, 1))
+			expected_output = expected_output.reshape(-1, 1)
+		output = self.predict(input)
+		metrics_score = {}
+		for m in self.metrics:
+			metrics_score[m.name] = m.f(output, expected_output)
+		result = Result(metrics=metrics_score, history={})
+		return result
 
-    def dump_model(self, path):
-        with open(path, "wb") as file:
-            pickle.dump(self, file)
+	def dump_model(self, path):
+		with open(path, "wb") as file:
+			pickle.dump(self, file)
 
 	@staticmethod
 	def load_model(path):

@@ -6,7 +6,7 @@ from neural_network import utils
 import pandas as pd
 import wandb
 
-wandb.init(project="neural_network")
+# wandb.init(project="neural_network")
 
 # dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
 # dataset_class_column = "class"
@@ -44,6 +44,7 @@ def model_builder(hp):
         layers=layers,
         loss=loss_function,
         optimizer=SGD(learning_rate=hp["learning_rate"], momentum=hp["momentum"], regularization=hp["regularization"]),
+        metrics=["mse"],
         batch_size=100,
         n_epochs=200,
         verbose=False
@@ -52,7 +53,7 @@ def model_builder(hp):
 
 hp = {"units": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[5, 10, 15],
+    generator_space=[5, 10],
     unfold=True),
     "learning_rate": Hyperparameter(
         generator_logic="all_from_list",
@@ -64,7 +65,7 @@ hp = {"units": Hyperparameter(
         unfold=True),
     "regularization": Hyperparameter(
         generator_logic="all_from_list",
-        generator_space=[0., 0.0001, 0.01],
+        generator_space=[0.],
         unfold=True)
 }
 # tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
@@ -76,4 +77,4 @@ r.dump("./dumps/test1.pickle")
 
 r = TestResult.load("./dumps/test1.pickle")
 
-r.validation_results[0].plot_one(0, "train_loss_curve", "val_loss_curve")
+r.validation_results[0].plot_one(0, "mse", "val_mse")

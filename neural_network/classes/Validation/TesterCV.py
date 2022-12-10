@@ -37,7 +37,7 @@ class TesterCV:
 			val_result = self.tuner.fit(fold_trainval_inputs, fold_trainval_outputs)
 
 			# get the model with the best hyperparameters obtained in the folds and refit it
-			model = self.tuner.best_model("val_acc", True)
+			model = self.tuner.best_model("val_mse", True)
 			model.fit(fold_trainval_inputs, fold_trainval_outputs)
 
 			# assess the model risk on the test set
