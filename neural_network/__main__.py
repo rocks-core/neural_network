@@ -1,6 +1,6 @@
 from neural_network import ActivationFunctions
 from neural_network import LossFunctions
-from neural_network import MLClassifier
+from neural_network import Model
 from neural_network import datasets
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Optimizers import SGD, NesterovSGD

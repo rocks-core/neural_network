@@ -1,6 +1,6 @@
 
 from neural_network.classes import ActivationFunctions
-from neural_network.classes.MLClassifier import MLClassifier
+from neural_network.classes.Model import Model
 from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Initializer import Uniform
 
@@ -40,7 +40,7 @@ def model_builder(config : dict, verbose : bool, input_shape : int, output_shape
 
     layers.append(OutputLayer(output_shape, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
-    model = MLClassifier(
+    model = Model(
 			layers = layers,
 			loss = config["loss_function"](),
 			optimizer = config["optimizer"](

@@ -5,10 +5,10 @@ from neural_network.classes.Metrics import MetricConverter
 import numpy as np
 import pickle
 
-__all__ = ["MLClassifier"]
+__all__ = ["Model"]
 
 
-class MLClassifier:
+class Model:
 	def __init__(
 			self,
 			layers: list,
@@ -81,11 +81,11 @@ class MLClassifier:
 
 	def update_metrics(self, output, expected_output, val_output, val_expected_output):
 		for m in self.metrics:
-			s = m.f(output, expected_output)
+			s = m.f(expected_output, output)
 			self.metrics_score[m.name] = s
 			self.metrics_history[m.name].append(s)
 			if val_output is not None and val_expected_output is not None:
-				s = m.f(val_output, val_expected_output)
+				s = m.f(val_expected_output, val_output)
 				self.metrics_score["val_" + m.name] = s
 				self.metrics_history["val_" + m.name].append(s)
 

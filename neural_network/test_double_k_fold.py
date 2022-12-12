@@ -40,7 +40,7 @@ def model_builder(hp):
         OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1))
     ]
 
-    model = MLClassifier(
+    model = Model(
         layers=layers,
         loss=loss_function,
         optimizer=SGD(learning_rate=hp["learning_rate"], momentum=hp["momentum"], regularization=hp["regularization"]),
