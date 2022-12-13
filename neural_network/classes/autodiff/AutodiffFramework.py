@@ -132,6 +132,25 @@ class AutodiffFramework:
 		node = DivisionNode(x_node, y_node)
 		return self.add_node(node)
 
+	def max(self, x, y):
+		x_node = self.convert_to_node(x, y.shape)
+		y_node = self.convert_to_node(y, x.shape)
+
+		node = MaxNode(x_node, y_node)
+		return self.add_node(node)
+
+	def min(self, x, y):
+		x_node = self.convert_to_node(x, y.shape)
+		y_node = self.convert_to_node(y, x.shape)
+
+		node = MinNode(x_node, y_node)
+		return self.add_node(node)
+
+	def avg(self, arr):
+		nodes = [self.convert_to_node(x) for x in arr]
+		node = AvgNode(nodes)
+		return self.add_node(node)
+
 	def gradient(self, root, var):
 		if self.strict:
 			if root not in self.tree_nodes:
@@ -146,5 +165,5 @@ class AutodiffFramework:
 				raise ValueError("only nodes from current framework can be used when strict mode is used")
 			if var not in self.variables:
 				raise ValueError("only variable created with add_variable method can be used when strict mode is used")
-		return root.jacobian()
+		return root.jacobian(var)
 

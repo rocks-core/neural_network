@@ -35,9 +35,9 @@ layers = [InputLayer((None, X.shape[-1]), 15, ActivationFunctions.Sigmoid(), ini
 model = ADModel(
     layers=layers,
     loss=MSE(),
-    optimizer=SGD(learning_rate=0.12, momentum=0., regularization=0.),
+    optimizer=SGD(learning_rate=0.1, momentum=0., regularization=0.),
     metrics=["mse", "mae", "binary_accuracy"],
-    batch_size=100,
+    batch_size=10,
     verbose=True
 )
 

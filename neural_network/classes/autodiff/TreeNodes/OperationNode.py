@@ -28,7 +28,8 @@ class TransposeNode(OperationNode):
 
 	def jacobian(self, var):
 		jacobian = self.x.jacobian(var)
-		axes = tuple(a for a in range(var.value.ndim)) + tuple(a for a in reversed(range(var.value.ndim, jacobian.ndim, 1)))
+		axes = tuple(a for a in range(var.value.ndim)) + tuple(
+			a for a in reversed(range(var.value.ndim, jacobian.ndim, 1)))
 		return np.transpose(jacobian, axes=axes)
 
 	def backward(self, var):
@@ -141,6 +142,7 @@ class GetNode(OperationNode):
 	def backward(self, var):
 		jacobian = self.jacobian(var)
 		return jacobian_to_gradient(jacobian, var)
+
 
 # class InsertNode(OperationNode):
 # 	def __init__(self, x, y, i, ax):
@@ -276,3 +278,75 @@ class DivisionNode(OperationNode):
 		jacobian = self.jacobian(var)
 		return jacobian_to_gradient(jacobian, var)
 
+
+class MaxNode(OperationNode):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.shape = x.shape
+		self.computed = None
+
+	def compute(self):
+		if self.computed is None:
+			self.computed = np.maximum(self.x.compute(), self.y.compute())
+		return self.computed
+
+	def jacobian(self, var):
+		jacobian_x = self.x.jacobian(var)
+		jacobian_y = self.y.jacobian(var)
+
+		condition = self.x.compute() >= self.y.compute()
+		return np.where(condition, jacobian_x, jacobian_y)
+
+	def backward(self, var):
+		jacobian = self.jacobian(var)
+		return jacobian_to_gradient(jacobian, var)
+
+
+class MinNode(OperationNode):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.shape = x.shape
+		self.computed = None
+
+	def compute(self):
+		if self.computed is None:
+			self.computed = np.minimum(self.x.compute(), self.y.compute())
+		return self.computed
+
+	def jacobian(self, var):
+		jacobian_x = self.x.jacobian(var)
+		jacobian_y = self.y.jacobian(var)
+
+		condition = self.x.compute() <= self.y.compute()
+		return np.where(condition, jacobian_x, jacobian_y)
+
+	def backward(self, var):
+		jacobian = self.jacobian(var)
+		return jacobian_to_gradient(jacobian, var)
+
+
+class AvgNode(OperationNode):
+	def __init__(self, arr):
+		self.arr = arr
+		self.shape = arr[0].shape
+		self.computed = None
+
+	@staticmethod
+	def mean(arr):
+		sum = arr[0]
+		for a in arr[1:]:
+			sum += a
+		return sum / len(arr)
+
+	def compute(self):
+		if self.computed is None:
+			self.computed = AvgNode.mean(self.arr)
+		return self.computed
+
+	def jacobian(self, var):
+		return AvgNode.mean([a.jacobian(var) for a in self.arr])
+
+	def backward(self, var):
+		return AvgNode.mean([a.backward(var) for a in self.arr])
