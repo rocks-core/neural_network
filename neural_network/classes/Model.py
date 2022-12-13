@@ -16,19 +16,11 @@ class Model:
 			optimizer,
 			metrics: list,
 			batch_size: int = 100,
-			n_epochs: int = 100,
 			shuffle: bool = False,
 			verbose: bool = False,
 	):
-
-		layers[0].build()
-		self.layers = [layers[0]]
-		for layer in layers[1:-1]:
-			layer.build(self.layers[-1])
-			self.layers.append(layer)
-		layers[-1].build(self.layers[-1], loss)
-		self.layers.append(layers[-1])
-
+		self.layers = []
+		self.build_layer(layers, loss)
 		self.loss = loss
 		self.number_layers = len(layers)
 		self.optimizer = optimizer
@@ -43,10 +35,18 @@ class Model:
 		self.metrics_history = {}
 
 		self.batch_size = batch_size
-		self.n_epochs = n_epochs
 		self.shuffle = shuffle
 		self.verbose = verbose
 		self.early_stop = False
+
+	def build_layer(self, layers, loss):
+		layers[0].build()
+		self.layers.append(layers[0])
+		for layer in layers[1:-1]:
+			layer.build(self.layers[-1])
+			self.layers.append(layer)
+		layers[-1].build(self.layers[-1], loss)
+		self.layers.append(layers[-1])
 
 	def fit_pattern(self, pattern: np.array, expected_output: np.array) -> list:
 		"""
@@ -91,7 +91,7 @@ class Model:
 
 	def print_metrics(self):
 		for k, v in self.metrics_score.items():
-			print(k, str(v), end="\t")
+			print(f"{k}: {v:.4f}", end="\t")
 		print()
 
 	def fit(
@@ -146,12 +146,7 @@ class Model:
 			for (batch_in, batch_out) in batches:  # iterate over batches
 				self.optimizer.apply(self, batch_in, batch_out)  # update the weights
 
-				# deltas = self.__fit_pattern(batch_in, batch_out)
-				# deltas = list(map(lambda x: np.divide(x, len(batch_out)), deltas))
-
 				# at the end of batch update weights
-				self.optimizer.apply(self, batch_in, batch_out)  # changed from delta to sum_of_deltas
-			# the optimizer calling the fit_pattern function will update the metrics
 
 		return Result(metrics=self.metrics_score, history=self.metrics_history)
 

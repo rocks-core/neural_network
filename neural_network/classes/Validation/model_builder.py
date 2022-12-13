@@ -1,7 +1,7 @@
 
 from neural_network.classes import ActivationFunctions
 from neural_network.classes.Model import Model
-from neural_network.classes.Layer import HiddenLayer, OutputLayer, InputLayer
+from neural_network.classes.Layers import HiddenLayer, OutputLayer, InputLayer
 from neural_network.classes.Initializer import Uniform
 
 def model_builder(config : dict, verbose : bool, input_shape : int, output_shape : int):

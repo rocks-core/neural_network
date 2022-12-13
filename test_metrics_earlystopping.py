@@ -1,7 +1,7 @@
 import pandas as pd
 from neural_network import datasets
 from neural_network.classes import Model
-from neural_network.classes.Layer import *
+from neural_network.classes.Layers import *
 from neural_network.classes import ActivationFunctions
 from neural_network.classes.Optimizers import *
 from neural_network.classes.LossFunctions import MSE
@@ -53,7 +53,7 @@ model = Model(
 t = time.time_ns()
 h = model.fit(X, y, validation_data=[test_x, test_y], epochs=500,
               callbacks=[EarlyStopping("val_mse", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
-                         # WandbLogger("all")
+                         WandbLogger("all")
                          ])
 t = time.time_ns() - t
 print(f"training took {t*1e-9} seconds")

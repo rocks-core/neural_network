@@ -2,7 +2,7 @@ import numpy as np
 
 from neural_network.classes.ActivationFunctions import ActivationFunction
 from neural_network.classes.Initializer import Initializer
-from neural_network.classes.Layer import Layer
+from neural_network.classes.Layers import Layer
 
 
 class InputLayer(Layer):
@@ -36,7 +36,7 @@ class InputLayer(Layer):
 
 	def feedforward(self, input_vector: np.array) -> np.array:
 		if not self.built:
-			raise Exception("Layer not built, add it to a network")
+			raise Exception("Layers not built, add it to a network")
 		if not self.match_shape(input_vector):
 			raise Exception("input shape not matching the shape provided")
 

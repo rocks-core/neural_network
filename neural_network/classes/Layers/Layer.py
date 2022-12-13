@@ -38,7 +38,7 @@ class Layer:
 		:return: the array containing the outputs of the units of this layer
 		"""
 		if not self.built:
-			raise Exception("Layer not built, add it to a network")
+			raise Exception("Layers not built, add it to a network")
 
 		input_vector = np.insert(input_vector, 0, 1, axis=-1)  # adding bias term to input
 

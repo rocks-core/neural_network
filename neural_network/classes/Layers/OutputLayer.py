@@ -2,7 +2,7 @@ import numpy as np
 from neural_network.classes.ActivationFunctions import ActivationFunction
 from neural_network.classes.LossFunctions import LossFunction
 from neural_network.classes.Initializer import Initializer
-from neural_network.classes.Layer import Layer
+from neural_network.classes.Layers import Layer
 
 
 class OutputLayer(Layer):

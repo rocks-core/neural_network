@@ -12,12 +12,12 @@ class SGD:
 
 		if not self.old_deltas:
 			for layer, delta in zip(model.layers, deltas):
-				layer.weights = layer.weights + self.learning_rate * delta - 2 * self.regularization * layer.weights
+				layer.weights = layer.weights + self.learning_rate * delta - layer.weights * self.regularization * 2
 			self.old_deltas = list(deltas)
 		else:
 			new_deltas = []
 			for layer, delta, old_delta in zip(model.layers, deltas, self.old_deltas):
 				new_delta = self.learning_rate * delta + self.momentum * old_delta
 				new_deltas.append(new_delta)
-				layer.weights = layer.weights + new_delta - 2 * self.regularization * layer.weights
+				layer.weights = layer.weights + new_delta - layer.weights * self.regularization * 2
 			self.old_deltas = new_deltas

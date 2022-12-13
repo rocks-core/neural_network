@@ -1,5 +1,5 @@
 import numpy as np
-from neural_network.classes.Layer import Layer
+from neural_network.classes.Layers import Layer
 from neural_network.classes.ActivationFunctions import ActivationFunction
 
 
