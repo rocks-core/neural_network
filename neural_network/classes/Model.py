@@ -15,7 +15,6 @@ class Model:
 			loss: LossFunction,
 			optimizer,
 			metrics: list,
-			batch_size: int = 100,
 			shuffle: bool = False,
 			verbose: bool = False,
 	):
@@ -34,7 +33,6 @@ class Model:
 		self.metrics_score = {}
 		self.metrics_history = {}
 
-		self.batch_size = batch_size
 		self.shuffle = shuffle
 		self.verbose = verbose
 		self.early_stop = False
@@ -100,6 +98,7 @@ class Model:
 			expected_outputs: np.array,
 			validation_data: list = None,
 			epochs: int = 100,
+			batch_size:int = 100,
 			callbacks: list = []
 	) -> Result:
 		"""
@@ -142,7 +141,7 @@ class Model:
 				break
 
 			# group patterns in batches
-			batches = utils.chunks(inputs, expected_outputs, self.batch_size)
+			batches = utils.chunks(inputs, expected_outputs, batch_size)
 			for (batch_in, batch_out) in batches:  # iterate over batches
 				self.optimizer.apply(self, batch_in, batch_out)  # update the weights
 

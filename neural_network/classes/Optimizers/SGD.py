@@ -8,12 +8,12 @@ class SGD:
 		self.old_deltas = []
 
 	def apply(self, model, x, y):
-		deltas = model.fit_pattern(x, y)
+		deltas = [d / x.shape[0] for d in model.fit_pattern(x, y)]
 
 		if not self.old_deltas:
 			for layer, delta in zip(model.layers, deltas):
 				layer.weights = layer.weights + self.learning_rate * delta - layer.weights * self.regularization * 2
-			self.old_deltas = list(deltas)
+			self.old_deltas = deltas
 		else:
 			new_deltas = []
 			for layer, delta, old_delta in zip(model.layers, deltas, self.old_deltas):

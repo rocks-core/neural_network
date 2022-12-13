@@ -8,7 +8,7 @@ class NesterovSGD:
 
 	def apply(self, model, x, y):
 		if not self.old_deltas:
-			deltas = model.fit_pattern(x, y)
+			deltas = [d / x.shape[0] for d in model.fit_pattern(x, y)]
 			for layer, delta in zip(model.layers, deltas):
 				layer.weights = layer.weights + self.learning_rate * delta - 2 * self.regularization * layer.weights
 			self.old_deltas = deltas
@@ -16,14 +16,14 @@ class NesterovSGD:
 		else:
 			new_deltas = []
 
-			for layer, delta in zip(model.layers, self.old_deltas):
-				layer.weights = layer.weights + self.momentum * delta
-			deltas = [np.divide(d, x.shape[0]) for d in model.fit_pattern(x, y)]
-			for layer, delta in zip(model.layers, self.old_deltas):
-				layer.weights = layer.weights - self.momentum * delta
+			for layer, old_delta in zip(model.layers, self.old_deltas):
+				layer.weights = layer.weights + self.momentum * old_delta
+			deltas = [d / x.shape[0] for d in model.fit_pattern(x, y)]
+			for layer, old_delta in zip(model.layers, self.old_deltas):
+				layer.weights = layer.weights - self.momentum * old_delta
 
 			for layer, delta, old_delta in zip(model.layers, deltas, self.old_deltas):
 				new_delta = self.learning_rate * delta + self.momentum * old_delta
 				new_deltas.append(new_delta)
-				layer.weights = layer.weights + new_delta - 2 * self.regularization * layer.weights
+				layer.weights = layer.weights + new_delta - layer.weights * self.regularization * 2
 			self.old_deltas = new_deltas
