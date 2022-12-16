@@ -25,7 +25,7 @@ class AutodiffFramework:
 			self.variables.append(v)
 		return v
 
-	def add_node(self, node):
+	def register_node(self, node):
 		if self.strict:
 
 			if isinstance(node, VariableNode):
@@ -43,7 +43,7 @@ class AutodiffFramework:
 				return p[0]
 			else:
 				x_node = VariableNode(x)
-				return self.add_node(x_node)
+				return self.register_node(x_node)
 		elif isinstance(x, TreeNode):
 			if self.strict and x not in self.tree_nodes:
 				raise ValueError("only nodes from current framework can be used when strict mode is used")
@@ -52,47 +52,53 @@ class AutodiffFramework:
 			if x.shape == () and shape:
 				x = x * np.ones(shape=shape)
 			x_node = ConstantNode(x)
-			return self.add_node(x_node)
+			return self.register_node(x_node)
 
 	def transpose(self, x):
 		x_node = self.convert_to_node(x)
 
 		node = TransposeNode(x_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
-	def sum(self, x, y):
+	def add(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
-		node = SumNode(x_node, y_node)
-		return self.add_node(node)
+		node = AddNode(x_node, y_node)
+		return self.register_node(node)
+
+	def sum(self, x, ax):
+		x_node = self.convert_to_node(x)
+
+		node = SumNode(x_node, ax)
+		return self.register_node(node)
 
 	def sub(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
 		node = SubNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def product(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
 		node = ProductNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def matmul(self, x, y):
 		x_node = self.convert_to_node(x)
 		y_node = self.convert_to_node(y)
 
 		node = MatMulNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def get(self, x, i):
 		x_node = self.convert_to_node(x)
 
 		node = GetNode(x_node, i)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	# def insert(self, x, y, i, ax):
 	# 	x_node = self.convert_to_node(x)
@@ -106,50 +112,50 @@ class AutodiffFramework:
 		y_node = self.convert_to_node(y)
 
 		node = ConcatNode(x_node, y_node, ax)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def stack(self, arr, ax):
 		nodes = [self.convert_to_node(x) for x in arr]
 		node = StackNode(nodes, ax)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def exp(self, b, x):
 		x_node = self.convert_to_node(x)
 
 		node = ExpNode(b, x_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def pow(self, x, e):
 		x_node = self.convert_to_node(x)
 
 		node = PowNode(x_node, e)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def division(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
 		node = DivisionNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def max(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
 		node = MaxNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def min(self, x, y):
 		x_node = self.convert_to_node(x, y.shape)
 		y_node = self.convert_to_node(y, x.shape)
 
 		node = MinNode(x_node, y_node)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def avg(self, arr):
 		nodes = [self.convert_to_node(x) for x in arr]
 		node = AvgNode(nodes)
-		return self.add_node(node)
+		return self.register_node(node)
 
 	def gradient(self, root, var):
 		if self.strict:

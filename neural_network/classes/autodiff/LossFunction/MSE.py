@@ -1,6 +1,7 @@
 from .LossFunction import LossFunction
 import numpy as np
 
+
 class MSE(LossFunction):
 	def f(self, af, expected_output, output):
 		diff = af.sub(expected_output, output)

@@ -1,6 +1,7 @@
 import tensorflow as tf
 from TreeNodes.OperationNode import *
 from neural_network.classes.autodiff import AutodiffFramework
+from neural_network.classes.autodiff.ActivationFunctions import Softmax
 
 if __name__ == '__main__':
 	npw = np.random.random(size=(4, 4))
@@ -10,9 +11,8 @@ if __name__ == '__main__':
 	af = AutodiffFramework(strict=True)
 
 	v1 = af.add_variable(npx)
-
-	a = af.avg([v1, npw, npw])
-
+	a = Softmax().f(af, v1)
+	# b = a.compute()
 	g1 = af.gradient(a, v1)
 	# b = af.stack([v1, npw], ax=0)
 	# a = b.compute()
@@ -31,8 +31,7 @@ if __name__ == '__main__':
 	w = tf.constant(npw)
 	z = tf.constant(npz)
 	with tf.GradientTape() as tape:
-		y = tf.add_n([x, w, w])
-		y = y / 3
+		y = tf.keras.activations.softmax(x)
 		# y = tf.stack([x, w], axis=0)
 		# y = tf.matmul(y, tf.stack([tf.transpose(x), x], axis=0))
 		# y = tf.linalg.matmul(w + x, tf.transpose(x))
@@ -43,4 +42,5 @@ if __name__ == '__main__':
 		# print(y - a)
 
 	g2 = tape.gradient(y, x)
+	# print(y - b)
 	print(g2 - g1)

@@ -89,7 +89,7 @@ class Model:
 
 	def print_metrics(self):
 		for k, v in self.metrics_score.items():
-			print(f"{k}: {v:.4f}", end="\t")
+			print(f"{k}: {v:.4f}", end="    ")
 		print()
 
 	def fit(

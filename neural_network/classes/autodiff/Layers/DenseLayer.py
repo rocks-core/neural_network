@@ -13,7 +13,7 @@ class DenseLayer(Layer):
 		if not self.built:
 			raise Exception("Layers not built, add it to a network")
 
-		inputs = self.af.concat(inputs, np.ones((inputs.shape[0], 1)), ax=1)
+		inputs = self.af.concat(np.ones((inputs.shape[0], 1)), inputs, ax=1)
 		net = self.af.matmul(inputs, self.weights)
 		out = self.activation_function.f(self.af, net)
 		return out

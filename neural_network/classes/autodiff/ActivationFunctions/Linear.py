@@ -1,6 +1,6 @@
 from .ActivationFunction import ActivationFunction
 
 
-class Sigmoid(ActivationFunction):
+class Linear(ActivationFunction):
 	def f(self, af, x):
 		return x

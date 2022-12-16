@@ -36,7 +36,7 @@ class TransposeNode(OperationNode):
 		return np.transpose(self.x.backward(var))
 
 
-class SumNode(OperationNode):
+class AddNode(OperationNode):
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
@@ -73,6 +73,28 @@ class SubNode(OperationNode):
 	def backward(self, var):
 		return self.x.backward(var) - self.y.backward(var)
 
+
+class SumNode(OperationNode):
+	def __init__(self, x, ax):
+		self.x = x
+		if isinstance(ax, int):
+			ax = tuple([ax])
+		self.ax = ax
+		self.shape = tuple(1 if i in ax else a for i, a in enumerate(x.shape))
+		self.computed = None
+
+	def compute(self):
+		if self.computed is None:
+			self.computed = np.sum(self.x.compute(), axis=self.ax)
+			self.computed = self.computed.reshape(self.shape)
+		return self.computed
+
+	def jacobian(self, var):
+		ax = tuple(var.value.ndim + a for a in self.ax)
+		return np.sum(self.x.jacobian(var), axis=ax).reshape(var.shape + self.shape)
+
+	def backward(self, var):
+		return self.x.backward(var)
 
 class ProductNode(OperationNode):
 	def __init__(self, x, y):

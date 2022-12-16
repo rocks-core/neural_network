@@ -35,17 +35,17 @@ layers = [InputLayer((None, X.shape[-1]), 15, ActivationFunctions.Sigmoid(), ini
 model = ADModel(
     layers=layers,
     loss=MSE(),
-    optimizer=SGD(learning_rate=0.1, momentum=0., regularization=0.),
+    optimizer=SGD(learning_rate=0.01, momentum=0.5, regularization=0.),
     metrics=["mse", "mae", "binary_accuracy"],
-    batch_size=10,
     verbose=True
 )
 
 t = time.time_ns()
-h = model.fit(X, y, validation_data=[test_x, test_y], epochs=500,
+h = model.fit(X, y, validation_data=[test_x, test_y], epochs=500, batch_size=10,
               callbacks=[EarlyStopping("val_mse", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
                          # WandbLogger("all")
                          ])
 t = time.time_ns() - t
 print(f"training took {t*1e-9} seconds")
 h.plot("mse", "val_mse")
+h.plot("binary_accuracy", "val_binary_accuracy")

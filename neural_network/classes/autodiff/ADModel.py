@@ -1,3 +1,5 @@
+import numpy as np
+
 from neural_network.classes.autodiff import AutodiffFramework
 from neural_network.classes.autodiff.LossFunction import LossFunction
 from neural_network.classes.Model import Model
@@ -9,11 +11,10 @@ class ADModel(Model):
 	             loss: LossFunction,
 	             optimizer,
 	             metrics: list,
-	             batch_size: int = 100,
 	             shuffle: bool = False,
 	             verbose: bool = False):
 		self.af = AutodiffFramework(strict=True)
-		super().__init__(layers, loss, optimizer, metrics, batch_size, shuffle, verbose)
+		super().__init__(layers, loss, optimizer, metrics, shuffle, verbose)
 
 	def build_layer(self, layers, loss):
 		layers[0].build(self.af)
@@ -28,7 +29,6 @@ class ADModel(Model):
 			inputs = layer(inputs)
 		output = inputs
 		loss = self.loss.f(self.af, expected_output, output)
-		a = loss.compute()
 		deltas = []
 		for layer in reversed(self.layers):
 			delta = -self.af.gradient(loss, layer.weights)
