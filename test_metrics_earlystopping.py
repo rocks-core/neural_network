@@ -44,13 +44,13 @@ layers = [
 model = Model(
     layers=layers,
     loss=MSE(),
-    optimizer=SGD(learning_rate=6., momentum=0., regularization=0.),
+    optimizer=SGD(learning_rate=0.1, momentum=0., regularization=0.),
     metrics=["mse", "mae", "binary_accuracy"],
     verbose=True
 )
 
 t = time.time_ns()
-h = model.fit(X, y, validation_data=[test_x, test_y], epochs=500, batch_size=10000,
+h = model.fit(X, y, validation_data=[test_x, test_y], epochs=500, batch_size=50,
               callbacks=[EarlyStopping("val_mse", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
                          # WandbLogger("all")
                          ])
