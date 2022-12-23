@@ -1,5 +1,5 @@
 import numpy as np
-from neural_network.classes.Layer import Layer
+from neural_network.classes.Layers import Layer
 from neural_network.classes.ActivationFunctions import ActivationFunction
 
 
@@ -7,15 +7,13 @@ class HiddenLayer(Layer):
 	def __init__(
 			self,
 			number_units: int,
-			activation_function: ActivationFunction
+			activation_function: ActivationFunction,
+			initializer
 	) -> None:
-		super().__init__(number_units, activation_function)
+		super().__init__(number_units, activation_function, initializer)
 
 	def backpropagate(
-			self,
-			next_layer_error_signals: np.array, # i-th element is i-th unit signal
-			next_layer_weights: np.array, # i-th row is array of i-th unit incoming weights
-			previous_layer_outputs: np.array
+			self
 	) -> np.array:
 		"""
 		Backpropagates the error signals from the next layer, generating the error signals of the current
@@ -31,16 +29,16 @@ class HiddenLayer(Layer):
 		:return: an array of arrays, containing the deltas to update the current layer weight; in particular, the
 			i-th row corresponds to the deltas of the i-th unit incoming weight.
 		"""
-		previous_layer_outputs = np.insert(previous_layer_outputs, 0, 1, axis=0)
+		previous_layer_outputs = np.insert(self.previous_layer.outputs, 0, 1, axis=-1)
 
 		# layer_weights[i,j] is the weight that j-th neuron assign to the i-th input (the opposite of what seen at lesson)
 		# remove the weight corresponding to bias
-		next_layer_weights = next_layer_weights[:, 1:]
+		next_layer_weights = self.next_layer.weights[1:, :]
 
 		# for each next layer note do dot product between error signal and incoming weight from current unit
-		self.error_signals = np.dot(next_layer_weights.T, next_layer_error_signals)
+		self.error_signals = np.dot(self.next_layer.error_signals, next_layer_weights.T)
 
-		derivative_applied_on_nets = np.array(list(map(self.activation_function.derivative_f, self.nets))).reshape(-1, 1)
+		derivative_applied_on_nets = self.activation_function.derivative_f(self.nets)
 		self.error_signals = np.multiply(self.error_signals, derivative_applied_on_nets)
 
-		return np.dot(self.error_signals, previous_layer_outputs.T)
+		return np.dot(previous_layer_outputs.T, self.error_signals)

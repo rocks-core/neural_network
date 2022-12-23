@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from neural_network.classes.Layer import OutputLayer, HiddenLayer
+from neural_network.classes.Layers import OutputLayer, HiddenLayer
 from neural_network.classes.LossFunctions import MSE
 from neural_network.classes.ActivationFunctions import Linear
 
