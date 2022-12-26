@@ -1,80 +1,111 @@
-from neural_network import LossFunctions
+from neural_network.classes.Callbacks import EarlyStopping
+from neural_network.classes.LossFunctions import MeanEuclideanDistance
 from neural_network import datasets
 from neural_network.classes.Optimizers import *
 from neural_network.classes.Validation import *
+from neural_network.utils import split_samples
 from neural_network import utils
 import pandas as pd
 import wandb
+from neural_network.classes.Validation.model_builder import model_builder
 
-# wandb.init(project="neural_network")
+dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"]
+dataset_class_column = ["target_x", "target_y"]
+dataset = pd.read_csv("neural_network/datasets/ML-CUP22-TR.csv", skiprows=7, index_col=0, names= dataset_attribute_columns + dataset_class_column)
 
-# dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
-# dataset_class_column = "class"
-# number_inputs = len(dataset_attribute_columns)
-loss_function = LossFunctions.MSE()
+# train, val, _ = split_samples(dataset, 0.3, 0.7, 0., shuffle=True)
+
+dataset_y = dataset[dataset_class_column].to_numpy()
+dataset_x = dataset[dataset_attribute_columns].to_numpy()
+
+
+# def model_builder(hp):
+#     layers = [
+#         InputLayer((None, dataset_x.shape[-1]), hp["units1"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
+#         HiddenLayer(hp["units2"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
+#         OutputLayer(2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1))
+#     ]
 #
-# dataset = datasets.read_monk1()[0]
-# x_dataset = dataset[dataset_attribute_columns].to_numpy(dtype=np.float32)
-# y_dataset = dataset[dataset_class_column].to_numpy()
+#     model = Model(
+#         layers=layers,
+#         loss=MeanEuclideanDistance(),
+#         n_epochs=200,
+#         batch_size=50,
+#         optimizer=SGD(learning_rate=hp["learning_rate"], momentum=hp["momentum"], regularization=hp["regularization"]),
+#         metrics=["mse", "mean_euclidean_distance"],
+#         shuffle=True,
+#         verbose=False
+#     )
+#     return model
 
+# def model_builder(hp):
+#     return None
 
-dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6"]
-dataset_class_column = "class"
-
-df, dft = datasets.read_monk1()
-df = pd.concat([df, dft], axis=0)
-df = pd.get_dummies(df, columns=dataset_attribute_columns)
-# dft = pd.get_dummies(dft, columns=dataset_attribute_columns)
-
-y = df.pop("class").to_numpy()
-X = df.to_numpy(dtype=np.float32)
-
-perm = np.random.permutation(X.shape[0])
-X = X[perm]
-y = y[perm]
-
-def model_builder(hp):
-    layers = [
-        InputLayer((None, X.shape[-1]), hp["units"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
-        # HiddenLayer(hp["units"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
-        OutputLayer(1, ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1))
-    ]
-
-    model = Model(
-        layers=layers,
-        loss=loss_function,
-        optimizer=SGD(learning_rate=hp["learning_rate"], momentum=hp["momentum"], regularization=hp["regularization"]),
-        metrics=["mse"],
-        batch_size=100,
-        n_epochs=200,
-        verbose=False
-    )
-    return model
-
-hp = {"units": Hyperparameter(
+hp = {"num_hidden_layers": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[5, 10],
+    generator_space=[3, 4, 5],
+    unfold=True),
+    "neurons_in_layer_1": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[5, 10, 20],
+    unfold=True),
+    "neurons_in_layer_2": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[5, 10, 20],
+    unfold=True),
+    "neurons_in_layer_3": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[5, 10, 20],
+    unfold=True),
+    "neurons_in_layer_4": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[0, 5, 10, 20],
+    unfold=True),
+    "neurons_in_layer_5": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[0, 5, 10, 20],
+    unfold=True),
+    "loss_function": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[MeanEuclideanDistance],
+    unfold=True),
+    "optimizer": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[SGD],
     unfold=True),
     "learning_rate": Hyperparameter(
-        generator_logic="all_from_list",
-        generator_space=[0.1],
-        unfold=True),
+    generator_logic="all_from_list",
+    generator_space=[0.5, 0.1, 0.05, 0.01, 0.001],
+    unfold=True),
     "momentum": Hyperparameter(
-        generator_logic="all_from_list",
-        generator_space=[0.],
-        unfold=True),
+    generator_logic="all_from_list",
+    generator_space=[0.9, 0.1, 0.01, 0.],
+    unfold=True),
     "regularization": Hyperparameter(
-        generator_logic="all_from_list",
-        generator_space=[0.],
-        unfold=True)
+    generator_logic="all_from_list",
+    generator_space=[0., 0.000001, 0.00001, 0.0001],
+    unfold=True),
+    "batch_size": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[100],
+    unfold=True),
+    "num_epochs": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[200],
+    unfold=True),
+    "callbacks": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[[EarlyStopping("val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True)]],
+    unfold=True)
 }
 # tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
-tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True)
+tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=2), model_builder, n_fold=4, verbose=True)
 tester = TesterCV(tuner, n_fold=4, verbose=True)
 
-r = tester.fit(X, y)
+r = tester.fit(dataset_x, dataset_y)
 r.dump("./dumps/test1.pickle")
 
 r = TestResult.load("./dumps/test1.pickle")
 
 r.validation_results[0].plot_one(0, "mse", "val_mse")
+r.validation_results[0].plot_one(0, "mean_euclidean_distance", "val_mean_euclidean_distance")

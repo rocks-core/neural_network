@@ -4,7 +4,7 @@ from neural_network.classes import Model
 from neural_network.classes.Layers import *
 from neural_network.classes import ActivationFunctions
 from neural_network.classes.Optimizers import *
-from neural_network.classes.LossFunctions import MSE
+from neural_network.classes.LossFunctions import MSE, MeanEuclideanDistance
 from neural_network.classes.Initializer import *
 from neural_network.classes.Callbacks import EarlyStopping, WandbLogger
 import time
@@ -42,7 +42,7 @@ dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9
 dataset_class_column = ["target_x", "target_y"]
 dataset = pd.read_csv("neural_network/datasets/ML-CUP22-TR.csv", skiprows=7, index_col=0, names= dataset_attribute_columns + dataset_class_column)
 
-train, val, _ = split_samples(dataset, 0.7, 0.3, 0., shuffle=True)
+train, val, _ = split_samples(dataset, 0.3, 0.7, 0., shuffle=True)
 
 train_y = train[dataset_class_column].to_numpy()
 train_x = train[dataset_attribute_columns].to_numpy()
@@ -58,23 +58,23 @@ val_x = val[dataset_attribute_columns].to_numpy()
 
 layers = [
         InputLayer((None, train_x.shape[-1]), 15, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        HiddenLayer(35, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
+        # HiddenLayer(35, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
+        # HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
+        # HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
         HiddenLayer(22, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
         OutputLayer(2, ActivationFunctions.Linear(), initializer=Gaussian(0., 0.1))
     ]
 
 model = Model(
     layers=layers,
-    loss=MSE(),
-    optimizer=SGD(learning_rate=0.005, momentum=0., regularization=0.),
+    loss=MeanEuclideanDistance(),
+    optimizer=NesterovSGD(learning_rate=0.05, momentum=0.9, regularization=0.),
     metrics=["mse", "mean_euclidean_distance"],
     verbose=True
 )
 
 t = time.time_ns()
-h = model.fit(train_x, train_y, validation_data=[val_x, val_y], epochs=100, batch_size=50,
+h = model.fit(train_x, train_y, validation_data=[val_x, val_y], epochs=200, batch_size=100,
               callbacks=[# EarlyStopping("val_mse", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
                          # WandbLogger("all")
                          ])
