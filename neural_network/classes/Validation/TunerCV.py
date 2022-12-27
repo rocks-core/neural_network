@@ -11,7 +11,9 @@ class TunerCV:
                  configurations: ConfigurationGenerator,
                  model_builder,
                  n_fold: int,
-                 verbose: bool
+                 verbose: bool,
+                 default_metric: str = None,
+                 default_reverse: bool = None
                  ):
         """
         Args:
@@ -27,6 +29,8 @@ class TunerCV:
         self.n_fold = n_fold
         self.results = None
         self.verbose = verbose
+        self.default_metric = default_metric
+        self.default_reverse = default_reverse
 
     @staticmethod
     def fit_configuration(params):
@@ -104,17 +108,25 @@ class TunerCV:
         return self.results
 
 
-    def best_params(self, metric, reverse):
+    def best_params(self, metric=None, reverse=None):
         """
         Get the best hyperparameters according to the specified metric
         """
+        if not metric:
+            metric = self.default_metric
+        if not reverse:
+            reverse = self.default_reverse
         self.results.sort(metric, reverse=reverse)
         a = self.results.list[0]
         a = a.hp_config
         return a
 
-    def best_model(self, metric, reverse):
+    def best_model(self, metric=None, reverse=None):
         """
         Get a (non-trained) new instance of the model with the best hyperparameters according to the specified metric
         """
+        if metric is None and self.default_metric is None:
+            raise ValueError("no metric provided to select best model")
+        if reverse is None and self.default_reverse is None:
+            raise ValueError("is not specified if the metric have to be maximised or minimized")
         return self.model_builder(self.best_params(metric, reverse))

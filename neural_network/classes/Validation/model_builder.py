@@ -15,17 +15,17 @@ def model_builder(config : dict):
     verbose = False
     input_shape = 9
     output_shape = 2
-    
+
     num_layer = config["num_hidden_layers"]
 
-    #check if the layers before num_hidden_layers are correct
+    # check if the layers before num_hidden_layers are correct
     for i in range(1, num_layer+1):
         if config["neurons_in_layer_"+str(i)] == 0:
             if verbose:
                 print(f"model build failed because the model has {num_layer} layers but the layer {i} has 0 neurons")
             return None
 
-    #check if all the layers after num_hidden_layers have zero units
+    # check if all the layers after num_hidden_layers have zero units
     i = 1
     while "neurons_in_layer_"+str(num_layer + i) in config.keys():
         if config["neurons_in_layer_"+str(num_layer + i)] != 0:
@@ -33,8 +33,8 @@ def model_builder(config : dict):
                 print(f"model build failed because the model has {num_layer} layers but layer {num_layer + i} has not 0 neurons")
             return None
         i +=1
-    
-    #built the layers
+
+    # built the layers
     layers = []
     layers.append( InputLayer((None, input_shape), config["neurons_in_layer_1"], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
@@ -57,8 +57,8 @@ def model_builder(config : dict):
             callbacks=config["callbacks"],
 			verbose=verbose
 		)
-    
+
     if verbose:
         print(f"model builded")
-    
+
     return model

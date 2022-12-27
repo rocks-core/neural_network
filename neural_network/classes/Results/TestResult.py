@@ -17,6 +17,7 @@ class TestResult:
 		self.metrics = {}
 		for m in results[0].metrics.keys():
 			self.metrics[m] = np.array([r.metrics[m] for r in results]).mean()
+		self.results = results
 		self.validation_results = validation_results
 		self.name = name
 		self.comments = comments

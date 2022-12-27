@@ -83,11 +83,12 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "callbacks": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[[]],
+    generator_space=[[EarlyStopping(monitor="val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-4, restore_best_weight=True)]],
     unfold=True)
 }
 # tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
-tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True)
+tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=8), model_builder, n_fold=4, verbose=True,
+                default_metric="val_mean_euclidean_distance", default_reverse=False)
 tester = TesterCV(tuner, n_fold=4, verbose=True)
 
 r = tester.fit(dataset_x, dataset_y)
