@@ -94,7 +94,7 @@ class TunerCV:
             )
             for config in self.configurations
         ]
-        with ProcessPoolExecutor(initializer=lambda: print("follow omnicarp1: https://www.twitch.tv/omnicarp1")) as executor:
+        with ProcessPoolExecutor() as executor:
             configurations_validation_result = executor.map(TunerCV.fit_configuration, configurations_params)
 
         # collecting the results for each runned configuration

@@ -7,6 +7,9 @@ class WandbLogger:
 		wandb.init(project=project_name)
 
 	def __call__(self, model, *args, **kwargs):
+		# fold = ""
+		# if "fold" in kwargs:
+		# 	fold = "Fold_" + kwargs["fold"] + "_"
 		if self.metrics == "all":
 			selected_metrics = model.metrics_score
 		else:

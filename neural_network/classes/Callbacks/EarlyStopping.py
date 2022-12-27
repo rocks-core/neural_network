@@ -36,7 +36,7 @@ class EarlyStopping:
 
 		:param model: model that called the callback
 		"""
-		if self.monitor not in model.metrics:
+		if self.monitor not in model.metrics_history.keys():
 			return
 		# check if we are seeking to minimize of maximize the metric
 		if self.mode == "min":

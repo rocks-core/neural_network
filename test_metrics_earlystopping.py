@@ -42,7 +42,7 @@ dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9
 dataset_class_column = ["target_x", "target_y"]
 dataset = pd.read_csv("neural_network/datasets/ML-CUP22-TR.csv", skiprows=7, index_col=0, names= dataset_attribute_columns + dataset_class_column)
 
-train, val, _ = split_samples(dataset, 0.3, 0.7, 0., shuffle=True)
+train, val, _ = split_samples(dataset, 0.75, 0.25, 0., shuffle=True)
 
 train_y = train[dataset_class_column].to_numpy()
 train_x = train[dataset_attribute_columns].to_numpy()
@@ -50,32 +50,35 @@ train_x = train[dataset_attribute_columns].to_numpy()
 val_y = val[dataset_class_column].to_numpy()
 val_x = val[dataset_attribute_columns].to_numpy()
 
-# scaler = MinMaxScaler()
-# train_x = scaler.fit_transform(train_x)
-# val_x = scaler.transform(val_x)
+scaler = MinMaxScaler()
+train_x = scaler.fit_transform(train_x)
+val_x = scaler.transform(val_x)
 # train_y = scaler.fit_transform(train_y)
 # val_y = scaler.transform(val_y)
 
 layers = [
-        InputLayer((None, train_x.shape[-1]), 15, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        # HiddenLayer(35, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        # HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        # HiddenLayer(50, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        HiddenLayer(22, ActivationFunctions.TanH(), initializer=Gaussian(0., 0.1)),
-        OutputLayer(2, ActivationFunctions.Linear(), initializer=Gaussian(0., 0.1))
+        InputLayer((None, train_x.shape[-1]), 10, ActivationFunctions.TanH(), initializer=Uniform(0., 0.1)),
+        # HiddenLayer(10, ActivationFunctions.TanH(), initializer=Uniform(0., 0.1)),
+        HiddenLayer(10, ActivationFunctions.TanH(), initializer=Uniform(0., 0.1)),
+        OutputLayer(2, ActivationFunctions.Linear(), initializer=Uniform(0., 0.1))
     ]
 
 model = Model(
     layers=layers,
     loss=MeanEuclideanDistance(),
-    optimizer=NesterovSGD(learning_rate=0.05, momentum=0.9, regularization=0.),
+    optimizer=SGD(learning_rate=0.03, momentum=0.0, regularization=0.0001),
     metrics=["mse", "mean_euclidean_distance"],
     verbose=True
 )
 
+# learning rate 0.05 - 0.0001
+# momentum 0. - 0.5
+# regularization 0., 0.0001 - 0.0000001
+# unit in layer 5, 10, 20
+
 t = time.time_ns()
-h = model.fit(train_x, train_y, validation_data=[val_x, val_y], epochs=200, batch_size=100,
-              callbacks=[# EarlyStopping("val_mse", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
+h = model.fit(train_x, train_y, validation_data=[val_x, val_y], epochs=700, batch_size=100,
+              callbacks=[# EarlyStopping("val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True),
                          # WandbLogger("all")
                          ])
 t = time.time_ns() - t

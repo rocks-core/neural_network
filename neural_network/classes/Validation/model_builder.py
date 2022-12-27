@@ -41,7 +41,7 @@ def model_builder(config : dict):
     for i in range(2, num_layer+1):
         layers.append( HiddenLayer( config["neurons_in_layer_"+str(i)], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
-    layers.append(OutputLayer(output_shape, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
+    layers.append(OutputLayer(output_shape, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)))
 
     model = Model(
 			layers = layers,

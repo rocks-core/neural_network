@@ -1,4 +1,4 @@
-from neural_network.classes.Callbacks import EarlyStopping
+from neural_network.classes.Callbacks import EarlyStopping, WandbLogger
 from neural_network.classes.LossFunctions import MeanEuclideanDistance
 from neural_network import datasets
 from neural_network.classes.Optimizers import *
@@ -43,7 +43,7 @@ dataset_x = dataset[dataset_attribute_columns].to_numpy()
 
 hp = {"num_hidden_layers": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[3, 4, 5],
+    generator_space=[2],
     unfold=True),
     "neurons_in_layer_1": Hyperparameter(
     generator_logic="all_from_list",
@@ -52,18 +52,6 @@ hp = {"num_hidden_layers": Hyperparameter(
     "neurons_in_layer_2": Hyperparameter(
     generator_logic="all_from_list",
     generator_space=[5, 10, 20],
-    unfold=True),
-    "neurons_in_layer_3": Hyperparameter(
-    generator_logic="all_from_list",
-    generator_space=[5, 10, 20],
-    unfold=True),
-    "neurons_in_layer_4": Hyperparameter(
-    generator_logic="all_from_list",
-    generator_space=[0, 5, 10, 20],
-    unfold=True),
-    "neurons_in_layer_5": Hyperparameter(
-    generator_logic="all_from_list",
-    generator_space=[0, 5, 10, 20],
     unfold=True),
     "loss_function": Hyperparameter(
     generator_logic="all_from_list",
@@ -75,11 +63,11 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "learning_rate": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.5, 0.1, 0.05, 0.01, 0.001],
+    generator_space=[0.05, 0.03, 0.01, 0.005, 0.001],
     unfold=True),
     "momentum": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.9, 0.1, 0.01, 0.],
+    generator_space=[0.5, 0.1, 0.01, 0.],
     unfold=True),
     "regularization": Hyperparameter(
     generator_logic="all_from_list",
@@ -91,15 +79,15 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "num_epochs": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[200],
+    generator_space=[700],
     unfold=True),
     "callbacks": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[[EarlyStopping("val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-3, restore_best_weight=True)]],
+    generator_space=[[]],
     unfold=True)
 }
 # tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
-tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=2), model_builder, n_fold=4, verbose=True)
+tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True)
 tester = TesterCV(tuner, n_fold=4, verbose=True)
 
 r = tester.fit(dataset_x, dataset_y)
