@@ -131,6 +131,8 @@ class Model:
 
 		self.initialize_metrics(bool(validation_data))
 
+		for callback in callbacks:
+			callback.reset()
 		# iterating over the epochs
 		for iter_number in range(epochs):
 			# compute output to compute the metrics score

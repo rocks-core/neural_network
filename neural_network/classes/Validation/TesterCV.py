@@ -28,6 +28,7 @@ class TesterCV:
 		k_fold = K_fold(inputs.shape[0], self.n_fold)
 		evaluation_results = []
 		val_results = []
+		refit_results = []
 		for (fold_trainval_indexes, fold_test_indexes) in k_fold.get_folds():
 			# select test and trainval set
 			fold_trainval_inputs, fold_trainval_outputs = inputs[fold_trainval_indexes], outputs[fold_trainval_indexes]
@@ -38,12 +39,13 @@ class TesterCV:
 
 			# get the model with the best hyperparameters obtained in the folds and refit it
 			model = self.tuner.best_model()
-			model.fit(fold_trainval_inputs, fold_trainval_outputs)
+			refit_result = model.fit(fold_trainval_inputs, fold_trainval_outputs)
 
 			# assess the model risk on the test set
 			evaluation_result = model.evaluate_result(fold_test_inputs, fold_test_outputs)
 			evaluation_results.append(evaluation_result)
 			val_results.append(val_result)
+			refit_results.append(refit_result)
 
-		self.results = TestResult(evaluation_results, val_results)
+		self.results = TestResult(evaluation_results, val_results, refit_results)
 		return self.results

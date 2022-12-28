@@ -4,7 +4,11 @@ import wandb
 class WandbLogger:
 	def __init__(self, metrics, project_name="neural_network"):
 		self.metrics = metrics
+		self.project_name = project_name
 		wandb.init(project=project_name)
+
+	def reset(self):
+		wandb.init(project=self.project_name)
 
 	def __call__(self, model, *args, **kwargs):
 		# fold = ""

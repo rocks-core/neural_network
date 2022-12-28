@@ -1,4 +1,3 @@
-
 from neural_network.classes import ActivationFunctions
 from neural_network.classes.Model import Model
 from neural_network.classes.Layers import HiddenLayer, OutputLayer, InputLayer
@@ -36,10 +35,10 @@ def model_builder(config : dict):
 
     # built the layers
     layers = []
-    layers.append( InputLayer((None, input_shape), config["neurons_in_layer_1"], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
+    layers.append(InputLayer((None, input_shape), config["neurons_in_layer_1"], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
     for i in range(2, num_layer+1):
-        layers.append( HiddenLayer( config["neurons_in_layer_"+str(i)], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
+        layers.append(HiddenLayer( config["neurons_in_layer_"+str(i)], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
     layers.append(OutputLayer(output_shape, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)))
 

@@ -29,6 +29,11 @@ class EarlyStopping:
 		self.best_value = None
 		self.call_since_best = 0
 
+	def reset(self):
+		self.best_weights = None
+		self.best_value = None
+		self.call_since_best = 0
+
 	def __call__(self, model, *args, **kwargs):
 		"""
 		Checks whatever the variations of the monitored metric justify an early stopping and set to True

@@ -75,15 +75,15 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "batch_size": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[100],
+    generator_space=[200],
     unfold=True),
     "num_epochs": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[700],
+    generator_space=[1000],
     unfold=True),
     "callbacks": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[[EarlyStopping(monitor="val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-4, restore_best_weight=True)]],
+    generator_space=[[EarlyStopping(monitor="val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-2, restore_best_weight=False)]],
     unfold=True)
 }
 # tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
@@ -92,9 +92,10 @@ tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=8), model_b
 tester = TesterCV(tuner, n_fold=4, verbose=True)
 
 r = tester.fit(dataset_x, dataset_y)
-r.dump("./dumps/test1.pickle")
+r.dump("./dumps/test2.pickle")
 
-r = TestResult.load("./dumps/test1.pickle")
+r = TestResult.load("./dumps/test2.pickle")
 
+r.refit_results[0].plot("mean_euclidean_distance")
 r.validation_results[0].plot_one(0, "mse", "val_mse")
 r.validation_results[0].plot_one(0, "mean_euclidean_distance", "val_mean_euclidean_distance")
