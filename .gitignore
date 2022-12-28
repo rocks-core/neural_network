@@ -1,3 +1,6 @@
+# test result dumps
+dumps/
+
 # neural network logger
 wandb/
 

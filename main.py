@@ -70,9 +70,9 @@ tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4
 tester = TesterCV(tuner, n_fold=4, verbose=True)
 
 r = tester.fit(dataset_x, dataset_y)
-r.dump("./dumps/test2.pickle")
+r.dump("./dumps/test1.pickle")
 
-r = TestResult.load("./dumps/test2.pickle")
+r = TestResult.load("./dumps/test1.pickle")
 
 r.refit_results[0].plot("mean_euclidean_distance")
 r.validation_results[0].plot_one(0, "mse", "val_mse")
