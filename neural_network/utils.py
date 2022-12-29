@@ -17,44 +17,46 @@ def chunks(inputs, expected_outputs, n):
 
 
 def split_samples(
-		df: pd.DataFrame,
+		d,
 		tr_size: float = 0.5,
 		vl_size: float = 0.25,
 		ts_size: float = 0.25,
-		shuffle: bool = False
+		shuffle: bool = False,
 ) -> tuple:
 	"""
-	Splits a dataframe in training, validation and test set
+	Splits a dataframe or a numpy array in training, validation and test set
 
-	:param df: pandas DataFrame, the dataframe to split
+	:param d: the data to split
 	:param tr_size: float, percentage of samples to put in the training set
 	:param vl_size: float, percentage of samples to put in the validation set
 	:param ts_size: float, percentage of samples to put in the test set
 	:param shuffle: bool, True if wants to shuffle the samples before partitioning them
+	:param colums: list, if not None the  wants to shuffle the samples before partitioning them
 	:return: a tuple containing 3 pandas DataFrame: training, validation and test set
 	"""
-	columns = df.columns
-
-	# randomly shuffling points
-	samples = df.values
-
+	columns = None
+	if isinstance(d, pd.DataFrame):
+		columns = d.columns
+		d = d.values
+	# random shuffling points
 	if shuffle:
-		np.random.shuffle(samples)  # beware: shuffles values in place
+		np.random.shuffle(d)  # beware: shuffles values in place
 
 	# splitting points in tr, vl and ts set
-	tr_index = round(len(samples) * tr_size)
-	vl_index = tr_index + round(len(samples) * vl_size)
-	ts_index = vl_index + round(len(samples) * ts_size)
+	tr_index = round(len(d) * tr_size)
+	vl_index = tr_index + round(len(d) * vl_size)
+	ts_index = vl_index + round(len(d) * ts_size)
 
-	train_set_points = samples[0:tr_index]
-	validation_set_points = samples[tr_index:vl_index]
-	test_set_points = samples[vl_index:ts_index]
+	train_set_points = d[0:tr_index]
+	validation_set_points = d[tr_index:vl_index]
+	test_set_points = d[vl_index:ts_index]
 
-	train_set_df = pd.DataFrame(data=train_set_points, columns=columns)
-	validation_set_df = pd.DataFrame(data=validation_set_points, columns=columns)
-	test_set_df = pd.DataFrame(data=test_set_points, columns=columns)
+	if columns:
+		train_set_points = pd.DataFrame(data=train_set_points, columns=columns)
+		validation_set_points = pd.DataFrame(data=validation_set_points, columns=columns)
+		test_set_points = pd.DataFrame(data=test_set_points, columns=columns)
 
-	return train_set_df, validation_set_df, test_set_df
+	return train_set_points, validation_set_points, test_set_points
 
 
 """

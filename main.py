@@ -1,13 +1,9 @@
-from neural_network.classes.Callbacks import EarlyStopping, WandbLogger
+from neural_network.classes.Callbacks import EarlyStopping
 from neural_network.classes.LossFunctions import MeanEuclideanDistance
-from neural_network import datasets
 from neural_network.classes.Optimizers import *
 from neural_network.classes.Validation import *
-from neural_network.utils import split_samples
-from neural_network import utils
 import pandas as pd
-import wandb
-from neural_network.classes.Validation.model_builder import model_builder
+from model_builder import model_builder
 
 dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"]
 dataset_class_column = ["target_x", "target_y"]
