@@ -69,24 +69,6 @@ class TunerCV:
             ResultCollection: the collection of all results obtained during the model selection
         """
         self.results = ResultCollection()
-        """
-        for config in configurations:
-            if self.verbose:
-                print("Building model with the following configuration:", config)
-            fold_results = []
-            k_fold = K_fold(trainval_inputs.shape[0], self.n_fold)
-            for (fold_tr_indexes, fold_vl_indexes) in k_fold.get_folds():
-                model = self.model_builder(config)
-                fold_tr_inputs, fold_tr_outputs = trainval_inputs[fold_tr_indexes], trainval_outputs[fold_tr_indexes]
-                fold_vl_inputs, fold_vl_outputs = trainval_inputs[fold_vl_indexes], trainval_outputs[fold_vl_indexes]
-                result = model.fit(
-                    fold_tr_inputs,
-                    fold_tr_outputs,
-                    [fold_vl_inputs, fold_vl_outputs]
-                )
-                fold_results.append(result)
-            fold_results = ValidationResult(config, fold_results)
-        """
         configurations_params = [
             (
                 config,

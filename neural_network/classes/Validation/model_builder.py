@@ -11,9 +11,9 @@ def model_builder(config : dict):
     :input shape: the size of the input vector (input layer)
     :output shape: the size of the output vector (output layer) 
     """
-    verbose = False
-    input_shape = 9
-    output_shape = 2
+    verbose = True
+    input_shape = 6
+    output_shape = 1
 
     num_layer = config["num_hidden_layers"]
 
@@ -40,7 +40,7 @@ def model_builder(config : dict):
     for i in range(2, num_layer+1):
         layers.append(HiddenLayer( config["neurons_in_layer_"+str(i)], ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
-    layers.append(OutputLayer(output_shape, ActivationFunctions.Linear(), initializer=Uniform(-1, 1)))
+    layers.append(OutputLayer(output_shape, ActivationFunctions.Sigmoid(), initializer=Uniform(-1, 1)))
 
     model = Model(
 			layers = layers,
@@ -50,7 +50,7 @@ def model_builder(config : dict):
                 config["momentum"],
                 config["regularization"]
             ),
-            metrics=["mse", "mean_euclidean_distance"],
+            metrics=["mse", "binary_accuracy"],
 			batch_size=config["batch_size"],
 			n_epochs=config["num_epochs"],
             callbacks=config["callbacks"],
