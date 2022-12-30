@@ -69,12 +69,11 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True)
 }
 
-tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=8), model_builder, n_fold=4, verbose=True,
+tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True,
                 default_metric="val_mean_euclidean_distance", default_reverse=False)
 
 res = tuner.fit(dataset_x, dataset_y)
 res.dump("dumps/fine_search.pickle")
 best_model = tuner.best_model()
-best_model.dump_model("dumps/best_model.pickle")
 best_model.dump_weights("dumps/best_weights.pickle")
 
