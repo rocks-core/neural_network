@@ -5,7 +5,7 @@ from neural_network.classes.Optimizers import *
 from neural_network.classes.Validation import *
 import pandas as pd
 from neural_network.classes.ActivationFunctions import Sigmoid, TanH
-from neural_network.classes.Validation import TunerHO
+from neural_network.classes.Validation import TunerCV
 
 
 dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"]
@@ -17,23 +17,19 @@ dataset_x = dataset[dataset_attribute_columns].to_numpy()
 
 hp = {"num_hidden_layers": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[2, 3, 4],
+    generator_space=[3],
     unfold=True),
     "neurons_in_layer_1": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[10, 70],
+    generator_space=[10, 15, 20],
     unfold=True),
     "neurons_in_layer_2": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[10, 70],
+    generator_space=[10, 15, 20],
     unfold=True),
     "neurons_in_layer_3": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0, 10, 70],
-    unfold=True),
-    "neurons_in_layer_4": Hyperparameter(
-    generator_logic="all_from_list",
-    generator_space=[0, 10, 70],
+    generator_space=[10, 15, 20],
     unfold=True),
     "loss_function": Hyperparameter(
     generator_logic="all_from_list",
@@ -45,19 +41,19 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "learning_rate": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.1, 0.01, 0.001],
+    generator_space=[0.05, 0.03, 0.01, 0.005],
     unfold=True),
     "momentum": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.9, 0.5, 0.1],
+    generator_space=[0.6, 0.5, 0.4],
     unfold=True),
     "regularization": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[1e-8, 1e-5, 1e-2],
+    generator_space=[0., 1e-8, 1e-7, 1e-6],
     unfold=True),
     "activation_function": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[Sigmoid, TanH],
+    generator_space=[Sigmoid],
     unfold=True),
     "batch_size": Hyperparameter(
     generator_logic="all_from_list",
@@ -73,9 +69,12 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True)
 }
 
-tuner = TunerHO(ConfigurationGenerator(hp, mode="random", num_trials=100), model_builder, val_size=0.25, verbose=True,
-                default_metric="val_mean_euclidean_distance", default_reverse=False, shuffle=True)
+tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=8), model_builder, n_fold=4, verbose=True,
+                default_metric="val_mean_euclidean_distance", default_reverse=False)
 
 res = tuner.fit(dataset_x, dataset_y)
-res.dump("dumps/coarse_search.pickle")
+res.dump("dumps/fine_search.pickle")
+best_model = tuner.best_model()
+best_model.dump_model("dumps/best_model.pickle")
+best_model.dump_weights("dumps/best_weights.pickle")
 
