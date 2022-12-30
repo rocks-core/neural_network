@@ -1,5 +1,9 @@
 from neural_network.classes.Results import *
 
+
+monk_result = TestResult.load("./monk_results/validation_monk1_results.pickle")
+monk_result.plot_one(1, "mse", "val_mse")
+
 # result = TestResult.load("./monk1_results.pickle")
 # result = 0
 

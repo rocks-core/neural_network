@@ -190,7 +190,7 @@ class Model:
 		output = self.predict(input)
 		metrics_score = {}
 		for m in self.metrics:
-			metrics_score[m.name] = m.f(output, expected_output)
+			metrics_score[m.name] = m.f(expected_output, output)
 		return metrics_score
 
 	def evaluate_result(self, input: np.array, expected_output: np.array):
