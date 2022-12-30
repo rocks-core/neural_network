@@ -4,6 +4,7 @@ from neural_network.classes.Results import Result
 from neural_network.classes.Metrics import MetricConverter
 import numpy as np
 import pickle
+import os
 
 __all__ = ["Model"]
 
@@ -214,6 +215,8 @@ class Model:
 			layer.weights = w.copy()
 
 	def dump_model(self, path):
+		folder = os.path.dirname(path)
+		os.makedirs(folder, exist_ok=True)
 		with open(path, "wb") as file:
 			pickle.dump(self, file)
 
@@ -223,6 +226,8 @@ class Model:
 			return pickle.load(file)
 
 	def dump_weights(self, path):
+		folder = os.path.dirname(path)
+		os.makedirs(folder, exist_ok=True)
 		with open(path, "wb") as file:
 			pickle.dump(self.get_weights(), file)
 

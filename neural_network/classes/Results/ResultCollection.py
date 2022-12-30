@@ -1,5 +1,5 @@
 import pickle
-from typing import Union
+import os
 
 from neural_network.classes.Results.ValidationResult import ValidationResult
 from neural_network.classes.Results.TestResult import TestResult
@@ -13,7 +13,7 @@ class ResultCollection:
     def __init__(self):
         self.list = []
 
-    def add_result(self, result: Union[Result, ValidationResult, TestResult]):
+    def add_result(self, result):
         self.list.append(result)
 
     def sort(self, metric, reverse):
@@ -42,6 +42,8 @@ class ResultCollection:
             r.plot(*args, **kwargs)
 
     def dump(self, path):
+        folder = os.path.dirname(path)
+        os.makedirs(folder, exist_ok=True)
         with open(path, "wb") as file:
             pickle.dump(self, file)
 

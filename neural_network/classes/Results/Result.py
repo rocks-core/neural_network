@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pickle
-
+import os
 
 class Result:
     """
@@ -50,6 +50,8 @@ class Result:
         plt.close()
 
     def dump(self, path):
+        folder = os.path.dirname(path)
+        os.makedirs(folder, exist_ok=True)
         with open(path, "wb") as file:
             pickle.dump(self, file)
 
