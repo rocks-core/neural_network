@@ -4,7 +4,7 @@ from neural_network.classes.LossFunctions import MeanEuclideanDistance
 from neural_network.classes.Optimizers import *
 from neural_network.classes.Validation import *
 import pandas as pd
-from neural_network.classes.ActivationFunctions import Sigmoid, TanH
+from neural_network.classes.ActivationFunctions import Sigmoid
 from neural_network.classes.Validation import TunerCV
 
 

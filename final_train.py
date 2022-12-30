@@ -1,9 +1,14 @@
+import numpy as np
+
+from model_builder import model_builder
 from neural_network.classes.Callbacks import EarlyStopping
 from neural_network.classes.LossFunctions import MeanEuclideanDistance
 from neural_network.classes.Optimizers import *
 from neural_network.classes.Validation import *
 import pandas as pd
-from model_builder import model_builder
+from neural_network.classes.ActivationFunctions import Sigmoid
+from neural_network.classes.Validation import TunerCV
+
 
 dataset_attribute_columns = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"]
 dataset_class_column = ["target_x", "target_y"]
@@ -12,17 +17,32 @@ dataset = pd.read_csv("neural_network/datasets/MLCup/train.csv", skiprows=7, ind
 dataset_y = dataset[dataset_class_column].to_numpy()
 dataset_x = dataset[dataset_attribute_columns].to_numpy()
 
+dataset = pd.read_csv("neural_network/datasets/MLCup/test.csv", skiprows=7, index_col=0, names= dataset_attribute_columns + dataset_class_column)
+
+test_set_y = dataset[dataset_class_column].to_numpy()
+test_set_x = dataset[dataset_attribute_columns].to_numpy()
+
+dataset_x = np.concatenate([dataset_x, test_set_x], axis=0)
+dataset_y = np.concatenate([dataset_y, test_set_y], axis=0)
+
+dataset = pd.read_csv("neural_network/datasets/ML-CUP22-TS.csv", skiprows=7, index_col=0, names= dataset_attribute_columns)
+blind_test_set = dataset[dataset_attribute_columns].to_numpy()
+
 hp = {"num_hidden_layers": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[2],
+    generator_space=[3],
     unfold=True),
     "neurons_in_layer_1": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[5, 10, 20],
+    generator_space=[10, 15, 20],
     unfold=True),
     "neurons_in_layer_2": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[5, 10, 20],
+    generator_space=[10, 15, 20],
+    unfold=True),
+    "neurons_in_layer_3": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[10, 15, 20],
     unfold=True),
     "loss_function": Hyperparameter(
     generator_logic="all_from_list",
@@ -34,15 +54,19 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True),
     "learning_rate": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.05, 0.03, 0.01, 0.005, 0.001],
+    generator_space=[0.05, 0.03, 0.01, 0.005],
     unfold=True),
     "momentum": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0.5, 0.1, 0.01, 0.],
+    generator_space=[0.6, 0.5, 0.4],
     unfold=True),
     "regularization": Hyperparameter(
     generator_logic="all_from_list",
-    generator_space=[0., 0.000001, 0.00001, 0.0001],
+    generator_space=[0., 1e-8, 1e-7, 1e-6],
+    unfold=True),
+    "activation_function": Hyperparameter(
+    generator_logic="all_from_list",
+    generator_space=[Sigmoid],
     unfold=True),
     "batch_size": Hyperparameter(
     generator_logic="all_from_list",
@@ -58,15 +82,15 @@ hp = {"num_hidden_layers": Hyperparameter(
     unfold=True)
 }
 
-tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True,
+tuner = TunerCV(ConfigurationGenerator(hp, mode="random", num_trials=8), model_builder, n_fold=4, verbose=True,
                 default_metric="val_mean_euclidean_distance", default_reverse=False)
 
-results = tuner.fit(dataset_x, dataset_y)
-model = tuner.best_model()
-refit_result = model.fit(dataset_x, dataset_y)
+res = tuner.fit(dataset_x, dataset_y)
+best_model = tuner.best_model()
+refit_result = best_model.fit(dataset_x, dataset_y)
+res.dump("./dumps/final_refit_all_dataset/grid_search_results.pickle")
+refit_result.dump("./dumps/final_refit_all_dataset/refit_results.pickle")
+best_model.dump_weights("./dumps/final_refit_all_dataset/best_weights.pickle")
 
-model.dump_model("./dumps/final_model")
-model.dump_weights("./dumps/final_weights")
-
-results.dump("./dumps/final_CV_results.pickle")
-refit_result.dump("./dumps/final_refit_results.pickle")
+prediction = best_model.predict(blind_test_set)
+np.savetxt("./final_prediction.csv", prediction, delimiter=",")
