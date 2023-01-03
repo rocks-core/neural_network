@@ -1,4 +1,12 @@
+# test result dumps
+dumps/
+
+# neural network logger
 wandb/
+
+# visual studio code settings
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

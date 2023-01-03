@@ -29,6 +29,11 @@ class EarlyStopping:
 		self.best_value = None
 		self.call_since_best = 0
 
+	def reset(self):
+		self.best_weights = None
+		self.best_value = None
+		self.call_since_best = 0
+
 	def __call__(self, model, *args, **kwargs):
 		"""
 		Checks whatever the variations of the monitored metric justify an early stopping and set to True
@@ -36,7 +41,8 @@ class EarlyStopping:
 
 		:param model: model that called the callback
 		"""
-
+		if self.monitor not in model.metrics_history.keys():
+			return
 		# check if we are seeking to minimize of maximize the metric
 		if self.mode == "min":
 			compare_function = lambda n, m: n + self.min_delta <= m

@@ -16,29 +16,6 @@ dataset = pd.read_csv("neural_network/datasets/MLCup/train.csv", skiprows=7, ind
 dataset_y = dataset[dataset_class_column].to_numpy()
 dataset_x = dataset[dataset_attribute_columns].to_numpy()
 
-
-# def model_builder(hp):
-#     layers = [
-#         InputLayer((None, dataset_x.shape[-1]), hp["units1"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
-#         HiddenLayer(hp["units2"], ActivationFunctions.Sigmoid(), initializer=Uniform(-0.1, 0.1)),
-#         OutputLayer(2, ActivationFunctions.Linear(), initializer=Uniform(-0.1, 0.1))
-#     ]
-#
-#     model = Model(
-#         layers=layers,
-#         loss=MeanEuclideanDistance(),
-#         n_epochs=200,
-#         batch_size=50,
-#         optimizer=SGD(learning_rate=hp["learning_rate"], momentum=hp["momentum"], regularization=hp["regularization"]),
-#         metrics=["mse", "mean_euclidean_distance"],
-#         shuffle=True,
-#         verbose=False
-#     )
-#     return model
-
-# def model_builder(hp):
-#     return None
-
 hp = {"num_hidden_layers": Hyperparameter(
     generator_logic="all_from_list",
     generator_space=[2],
@@ -84,16 +61,16 @@ hp = {"num_hidden_layers": Hyperparameter(
     generator_space=[[EarlyStopping(monitor="val_mean_euclidean_distance", patience=50, mode="min", min_delta=1e-2, restore_best_weight=False)]],
     unfold=True)
 }
-# tuner = TunerHO(ConfigurationGenerator(hp, mode="grid"), model_builder, validation_size=0.3, verbose=True)
-tuner = TunerCV(ConfigurationGenerator(hp, mode="grid", num_trials=8), model_builder, n_fold=4, verbose=True,
+
+tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4, verbose=True,
                 default_metric="val_mean_euclidean_distance", default_reverse=False)
-tester = TesterCV(tuner, n_fold=4, verbose=True)
 
-r = tester.fit(dataset_x, dataset_y)
-r.dump("./dumps/test2.pickle")
+results = tuner.fit(dataset_x, dataset_y)
+model = tuner.best_model()
+refit_result = model.fit(dataset_x, dataset_y)
 
-r = TestResult.load("./dumps/test2.pickle")
+model.dump_model("./dumps/final_model")
+model.dump_weights("./dumps/final_weights")
 
-r.refit_results[0].plot("mean_euclidean_distance")
-r.validation_results[0].plot_one(0, "mse", "val_mse")
-r.validation_results[0].plot_one(0, "mean_euclidean_distance", "val_mean_euclidean_distance")
+results.dump("./dumps/final_CV_results.pickle")
+refit_result.dump("./dumps/final_refit_results.pickle")

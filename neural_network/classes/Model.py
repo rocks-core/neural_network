@@ -14,7 +14,10 @@ class Model:
 			layers: list,
 			loss: LossFunction,
 			optimizer,
-			metrics: list,
+			n_epochs=100,
+			batch_size=100,
+			callbacks: list = [],
+			metrics: list = [],
 			shuffle: bool = False,
 			verbose: bool = False,
 	):
@@ -23,6 +26,9 @@ class Model:
 		self.loss = loss
 		self.number_layers = len(layers)
 		self.optimizer = optimizer
+		self.n_epochs = n_epochs
+		self.batch_size = batch_size
+		self.callbacks = callbacks
 
 		self.metrics = []
 		for m in metrics:
@@ -97,8 +103,8 @@ class Model:
 			inputs: np.array,
 			expected_outputs: np.array,
 			validation_data: list = None,
-			epochs: int = 100,
-			batch_size:int = 100,
+			epochs: int = None,
+			batch_size: int = None,
 			callbacks: list = []
 	) -> Result:
 		"""
@@ -109,6 +115,13 @@ class Model:
 		:param callbacks:
 		:return:
 		"""
+		if not epochs:
+			epochs = self.n_epochs
+		if not batch_size:
+			batch_size = self.batch_size
+
+		if not callbacks:
+			callbacks = self.callbacks
 
 		utils.check_input_shape(inputs)  # if input shape is (n,) transform it to row vector (shape (1, n))
 		utils.check_output_shape(expected_outputs)  # if output shape is (n,) transform label to column vector (shape (n, 1))
@@ -118,6 +131,8 @@ class Model:
 
 		self.initialize_metrics(bool(validation_data))
 
+		for callback in callbacks:
+			callback.reset()
 		# iterating over the epochs
 		for iter_number in range(epochs):
 			# compute output to compute the metrics score
@@ -140,6 +155,10 @@ class Model:
 			if self.early_stop:
 				break
 
+			if self.shuffle:
+				perm = np.random.permutation(inputs.shape[0])
+				inputs = np.take(inputs, perm, axis=0)
+				expected_outputs = np.take(expected_outputs, perm, axis=0)
 			# group patterns in batches
 			batches = utils.chunks(inputs, expected_outputs, batch_size)
 			for (batch_in, batch_out) in batches:  # iterate over batches

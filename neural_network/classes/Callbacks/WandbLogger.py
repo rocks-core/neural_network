@@ -4,9 +4,16 @@ import wandb
 class WandbLogger:
 	def __init__(self, metrics, project_name="neural_network"):
 		self.metrics = metrics
+		self.project_name = project_name
 		wandb.init(project=project_name)
 
+	def reset(self):
+		wandb.init(project=self.project_name)
+
 	def __call__(self, model, *args, **kwargs):
+		# fold = ""
+		# if "fold" in kwargs:
+		# 	fold = "Fold_" + kwargs["fold"] + "_"
 		if self.metrics == "all":
 			selected_metrics = model.metrics_score
 		else:
