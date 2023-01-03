@@ -1,5 +1,7 @@
 import pickle
 import numpy as np
+import os
+
 
 class TestResult:
 	"""
@@ -24,6 +26,8 @@ class TestResult:
 		self.comments = comments
 
 	def dump(self, path):
+		folder = os.path.dirname(path)
+		os.makedirs(folder, exist_ok=True)
 		with open(path, "wb") as file:
 			pickle.dump(self, file)
 

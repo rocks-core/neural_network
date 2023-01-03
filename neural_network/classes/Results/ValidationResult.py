@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import os
 
 
 class ValidationResult:
@@ -49,6 +50,8 @@ class ValidationResult:
             r.plot(*args, **kwargs)
 
     def dump(self, path):
+        folder = os.path.dirname(path)
+        os.makedirs(folder, exist_ok=True)
         with open(path, "wb") as file:
             pickle.dump(self, file)
 

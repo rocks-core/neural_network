@@ -4,6 +4,7 @@ from neural_network.classes.Results import Result
 from neural_network.classes.Metrics import MetricConverter
 import numpy as np
 import pickle
+import os
 
 __all__ = ["Model"]
 
@@ -189,7 +190,7 @@ class Model:
 		output = self.predict(input)
 		metrics_score = {}
 		for m in self.metrics:
-			metrics_score[m.name] = m.f(output, expected_output)
+			metrics_score[m.name] = m.f(expected_output, output)
 		return metrics_score
 
 	def evaluate_result(self, input: np.array, expected_output: np.array):
@@ -199,7 +200,7 @@ class Model:
 		output = self.predict(input)
 		metrics_score = {}
 		for m in self.metrics:
-			metrics_score[m.name] = m.f(output, expected_output)
+			metrics_score[m.name] = m.f(expected_output, output)
 		result = Result(metrics=metrics_score, history={})
 		return result
 
@@ -214,6 +215,8 @@ class Model:
 			layer.weights = w.copy()
 
 	def dump_model(self, path):
+		folder = os.path.dirname(path)
+		os.makedirs(folder, exist_ok=True)
 		with open(path, "wb") as file:
 			pickle.dump(self, file)
 
@@ -223,6 +226,8 @@ class Model:
 			return pickle.load(file)
 
 	def dump_weights(self, path):
+		folder = os.path.dirname(path)
+		os.makedirs(folder, exist_ok=True)
 		with open(path, "wb") as file:
 			pickle.dump(self.get_weights(), file)
 
