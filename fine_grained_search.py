@@ -1,3 +1,4 @@
+from sklearn.preprocessing import MinMaxScaler
 from model_builder import model_builder
 from neural_network.classes.Callbacks import EarlyStopping
 from neural_network.classes.LossFunctions import MeanEuclideanDistance
@@ -73,7 +74,6 @@ tuner = TunerCV(ConfigurationGenerator(hp, mode="grid"), model_builder, n_fold=4
                 default_metric="val_mean_euclidean_distance", default_reverse=False)
 
 res = tuner.fit(dataset_x, dataset_y)
-res.dump("dumps/fine_search.pickle")
-best_model = tuner.best_model()
-best_model.dump_weights("dumps/best_weights.pickle")
+res.dump("dumps/fine_search_scaled.pickle")
+
 

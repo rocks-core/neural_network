@@ -22,14 +22,15 @@ dataset = pd.read_csv("neural_network/datasets/MLCup/test.csv", skiprows=7, inde
 test_set_y = dataset[dataset_class_column].to_numpy()
 test_set_x = dataset[dataset_attribute_columns].to_numpy()
 
-result = ResultCollection.load("dumps/model_assesment_validation/fine_search.pickle")
+result = ResultCollection.load("dumps/model_assessment_validation/fine_search.pickle")
 result.sort("val_mean_euclidean_distance", False)
-best_hp = result.list[0].hp_config
-best_model = model_builder(best_hp)
-best_model.verbose = True
-refit_results = best_model.fit(dataset_x, dataset_y, epochs=1000, batch_size=200)
-test_result = best_model.evaluate_result(test_set_x, test_set_y)
+for i in range(1, 5, 1):
+	best_hp = result.list[i].hp_config
+	best_model = model_builder(best_hp)
+	best_model.verbose = True
+	refit_results = best_model.fit(dataset_x, dataset_y, epochs=1000, batch_size=200)
+	test_result = best_model.evaluate_result(test_set_x, test_set_y)
 
-refit_results.dump("./dumps/refit_results.pickle")
-test_result.dump("./dumps/test_results.pickle")
-best_model.dump_weights("./dumps/best_weights.pickle")
+	refit_results.dump(f"./dumps/model_assessment_validation/refit_results_best_{i}.pickle")
+	test_result.dump(f"./dumps/model_assessment_validation/test_results_best_{i}.pickle")
+	# best_model.dump_weights("./dumps/best_weights.pickle")

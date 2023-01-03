@@ -1,6 +1,7 @@
 import pandas as pd
 
 __all__ = [
+	"read_monk",
 	"read_monk1",
 	"read_monk2",
 	"read_monk3"

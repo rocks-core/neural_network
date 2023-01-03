@@ -31,10 +31,17 @@ class Result:
             show (bool): if true display the plot
         """
         fig, ax = plt.subplots()
+        fig.set_figwidth(11)
+        fig.set_figheight(11)
         for s in args:
             y = self.history[s]
             x = range(len(y))
-            ax.plot(x, y, label=s)
+            if "val_" in s:
+                linestyle = "dashed"
+            else:
+                linestyle = "solid"
+            ax.tick_params(axis='both', labelsize=16)
+            ax.plot(x, y, label=s, linestyle=linestyle)
             ax.legend()
 
         if "title" in kwargs:
@@ -43,7 +50,12 @@ class Result:
             ax.set_title(str(self.hp_config))
 
         if "save_path" in kwargs:
-            fig.savefig(kwargs["save_path"])
+            if "title" in kwargs:
+                title = kwargs["title"]
+            else:
+                title = "plot"
+            os.makedirs(kwargs["save_path"], exist_ok=True)
+            fig.savefig(kwargs["save_path"] + "/" +  title)
 
         if "show" not in kwargs or kwargs["show"]:
             plt.show()
